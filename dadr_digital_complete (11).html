@@ -1,0 +1,2981 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DADR Digital — Command Centre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────────────── */
+:root {
+  --accent: #0071E3;
+  --accent-soft: rgba(0,113,227,0.10);
+  --accent-hover: #0077ED;
+
+  --bg:        #F5F5F7;
+  --bg-card:   #FFFFFF;
+  --bg-raised: #FFFFFF;
+  --bg-inset:  #F0F0F2;
+  --bg-nav:    rgba(245,245,247,0.82);
+
+  --label-primary:   #1D1D1F;
+  --label-secondary: #6E6E73;
+  --label-tertiary:  #AEAEB2;
+  --label-quaternary:#C7C7CC;
+
+  --separator:       rgba(0,0,0,0.08);
+  --separator-strong:rgba(0,0,0,0.14);
+
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(0,0,0,0.05);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10), 0 0 0 0.5px rgba(0,0,0,0.06);
+
+  --radius-sm: 10px;
+  --radius:    14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --teal:   #30B880; --teal-soft:   rgba(48,184,128,0.10);
+  --blue:   #0071E3; --blue-soft:   rgba(0,113,227,0.10);
+  --purple: #8E5CF5; --purple-soft: rgba(142,92,245,0.10);
+  --amber:  #F5A623; --amber-soft:  rgba(245,166,35,0.10);
+  --red:    #FF3B30; --red-soft:    rgba(255,59,48,0.08);
+  --green:  #34C759; --green-soft:  rgba(52,199,89,0.10);
+}
+
+[data-theme="dark"] {
+  --bg:        #000000;
+  --bg-card:   #1C1C1E;
+  --bg-raised: #2C2C2E;
+  --bg-inset:  #3A3A3C;
+  --bg-nav:    rgba(28,28,30,0.88);
+
+  --label-primary:   #F5F5F7;
+  --label-secondary: #AEAEB2;
+  --label-tertiary:  #636366;
+  --label-quaternary:#48484A;
+
+  --separator:       rgba(255,255,255,0.09);
+  --separator-strong:rgba(255,255,255,0.15);
+
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.4),  0 0 0 0.5px rgba(255,255,255,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5), 0 0 0 0.5px rgba(255,255,255,0.06);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(255,255,255,0.07);
+
+  --teal-soft:   rgba(48,184,128,0.15);
+  --blue-soft:   rgba(0,113,227,0.15);
+  --purple-soft: rgba(142,92,245,0.15);
+  --amber-soft:  rgba(245,166,35,0.15);
+  --red-soft:    rgba(255,59,48,0.12);
+  --green-soft:  rgba(52,199,89,0.12);
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--label-primary);
+  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s, color 0.3s;
+  min-height: 100vh;
+}
+
+/* ── NAV ── */
+.nav {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--bg-nav);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 0.5px solid var(--separator);
+  height: 52px;
+  display: flex; align-items: center;
+  padding: 0 24px;
+  gap: 0;
+  transition: background 0.3s;
+}
+.nav-logo {
+  font-size: 13px; font-weight: 600;
+  letter-spacing: -0.3px;
+  color: var(--label-primary);
+  margin-right: 24px;
+  white-space: nowrap;
+}
+.nav-logo span { color: var(--accent); }
+.nav-tabs {
+  display: flex; gap: 2px; flex: 1;
+  overflow-x: auto; scrollbar-width: none;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+.nav-tab {
+  padding: 6px 14px;
+  font-size: 13px; font-weight: 400;
+  color: var(--label-secondary);
+  cursor: pointer;
+  border-radius: 8px;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+  user-select: none;
+  border: none; background: none;
+}
+.nav-tab:hover { background: var(--separator); color: var(--label-primary); }
+.nav-tab.active { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+
+.theme-toggle {
+  margin-left: auto; flex-shrink: 0;
+  width: 52px; height: 28px;
+  background: var(--bg-inset);
+  border: 0.5px solid var(--separator-strong);
+  border-radius: 14px;
+  cursor: pointer;
+  display: flex; align-items: center;
+  padding: 2px;
+  transition: background 0.3s;
+  position: relative;
+}
+.theme-toggle-knob {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  transition: transform 0.25s cubic-bezier(.4,0,.2,1);
+  transform: translateX(0);
+}
+[data-theme="dark"] .theme-toggle-knob { transform: translateX(24px); }
+
+/* ── PAGE SECTIONS ── */
+.section { display: none; }
+.section.active { display: block; }
+
+/* ── PAGE HEADER ── */
+.page-header {
+  padding: 44px 32px 32px;
+  max-width: 960px; margin: 0 auto;
+}
+.page-eyebrow {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 8px;
+}
+.page-title {
+  font-size: 28px; font-weight: 600; letter-spacing: -0.5px;
+  color: var(--label-primary); margin-bottom: 6px;
+}
+.page-sub {
+  font-size: 15px; color: var(--label-secondary); line-height: 1.6;
+  max-width: 540px;
+}
+
+/* ── METRIC PILLS ── */
+.metrics-row {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  padding: 0 32px 32px;
+  max-width: 960px; margin: 0 auto;
+}
+.metric-pill {
+  background: var(--bg-card);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  box-shadow: var(--shadow-sm);
+  flex: 1; min-width: 140px;
+  text-align: center;
+}
+.metric-num {
+  font-size: 22px; font-weight: 600; letter-spacing: -0.5px;
+  color: var(--label-primary); display: block;
+}
+.metric-label {
+  font-size: 11px; font-weight: 500; color: var(--label-secondary);
+  text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px;
+}
+.metric-pill.accent .metric-num { color: var(--accent); }
+
+/* ── CONTENT WRAP ── */
+.content { max-width: 960px; margin: 0 auto; padding: 0 32px 60px; }
+
+/* ── ORG CHART ── */
+.org-ceo-wrap {
+  display: flex; justify-content: center;
+  margin-bottom: 0;
+}
+.org-ceo-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 28px 32px 24px;
+  width: 340px;
+  text-align: center;
+  position: relative;
+}
+.org-ceo-card::after {
+  content: '';
+  position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%);
+  width: 1px; height: 28px; background: var(--separator-strong);
+}
+
+.org-tree-h {
+  position: relative;
+  height: 1px; background: var(--separator-strong);
+  max-width: 840px; margin: 0 auto;
+}
+.org-tree-h::before, .org-tree-h::after {
+  content: ''; position: absolute; top: 0;
+  width: 1px; height: 28px; background: var(--separator-strong);
+}
+.org-tree-h::before { left: 12.5%; }
+.org-tree-h::after  { right: 12.5%; }
+.org-tree-tick {
+  position: absolute; top: 0; width: 1px; height: 28px;
+  background: var(--separator-strong);
+}
+
+.avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 600; margin: 0 auto 12px;
+}
+.av-gold   { background: rgba(245,166,35,0.12); color: var(--amber); }
+.av-teal   { background: var(--teal-soft); color: var(--teal); }
+.av-blue   { background: var(--blue-soft); color: var(--blue); }
+.av-purple { background: var(--purple-soft); color: var(--purple); }
+.av-amber  { background: var(--amber-soft); color: var(--amber); }
+
+.person-role-badge {
+  display: inline-block;
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 20px; margin-bottom: 8px;
+}
+.badge-gold   { background: rgba(245,166,35,0.12); color: var(--amber); }
+.badge-teal   { background: var(--teal-soft); color: var(--teal); }
+.badge-blue   { background: var(--blue-soft); color: var(--blue); }
+.badge-purple { background: var(--purple-soft); color: var(--purple); }
+.badge-amber  { background: var(--amber-soft); color: var(--amber); }
+
+.person-name {
+  font-size: 18px; font-weight: 600; letter-spacing: -0.3px;
+  color: var(--label-primary); margin-bottom: 2px;
+}
+.person-title {
+  font-size: 12px; color: var(--label-secondary);
+  letter-spacing: 0.02em; margin-bottom: 14px;
+}
+.person-mandate {
+  font-size: 12.5px; color: var(--label-secondary); line-height: 1.65;
+  text-align: left; padding-top: 14px;
+  border-top: 0.5px solid var(--separator);
+}
+
+.hod-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  margin-top: 28px;
+}
+.hod-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.hod-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.hod-card-top {
+  padding: 18px 16px 14px;
+  border-bottom: 0.5px solid var(--separator);
+  text-align: center;
+}
+.hod-dept-label {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 8px 16px 0;
+  color: var(--label-secondary);
+}
+.hod-mandate {
+  padding: 8px 16px 16px; flex: 1;
+  list-style: none;
+}
+.hod-mandate li {
+  font-size: 11.5px; color: var(--label-secondary);
+  line-height: 1.55; padding: 5px 0;
+  border-bottom: 0.5px solid var(--separator);
+  display: flex; gap: 7px; align-items: flex-start;
+}
+.hod-mandate li:last-child { border-bottom: none; }
+.hod-mandate li::before {
+  content: '·'; font-size: 16px; line-height: 1.2;
+  flex-shrink: 0;
+}
+.li-teal::before   { color: var(--teal); }
+.li-blue::before   { color: var(--blue); }
+.li-purple::before { color: var(--purple); }
+.li-amber::before  { color: var(--amber); }
+
+.kpi-footer {
+  margin: 0 16px 14px;
+  background: var(--bg-inset);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+}
+.kpi-footer-label {
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--label-tertiary); margin-bottom: 3px;
+}
+.kpi-footer-val {
+  font-size: 11px; color: var(--label-secondary); line-height: 1.4;
+}
+
+/* ── BANNER ── */
+.banner {
+  background: var(--bg-card);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 22px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+  margin-bottom: 24px;
+}
+.banner-text { font-size: 13px; color: var(--label-secondary); line-height: 1.6; }
+.banner-text strong { color: var(--label-primary); font-weight: 600; }
+.banner-stat { text-align: right; flex-shrink: 0; }
+.banner-stat-num {
+  font-size: 24px; font-weight: 700; letter-spacing: -0.5px;
+  color: var(--accent); display: block;
+}
+.banner-stat-label {
+  font-size: 10px; font-weight: 500; color: var(--label-tertiary);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+
+/* ── CALENDAR ── */
+.cal-legend {
+  display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 20px;
+}
+.cal-legend-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--label-secondary);
+}
+.cal-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cal-dot-accent { background: var(--accent); }
+.cal-dot-teal   { background: var(--teal); }
+
+.months-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+.month-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.month-head {
+  padding: 14px 16px 10px;
+  border-bottom: 0.5px solid var(--separator);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.month-name-text {
+  font-size: 14px; font-weight: 600; letter-spacing: -0.2px;
+  color: var(--label-primary);
+}
+.month-sub { font-size: 10px; color: var(--label-tertiary); }
+.month-badge-tag {
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--accent-soft); color: var(--accent);
+  padding: 3px 8px; border-radius: 6px;
+}
+.cal-days-hdr {
+  display: grid; grid-template-columns: repeat(7,1fr);
+  padding: 8px 12px 4px;
+}
+.cal-lbl {
+  text-align: center; font-size: 9px; font-weight: 600;
+  color: var(--label-quaternary); letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 2px 0;
+}
+.cal-days-grid {
+  display: grid; grid-template-columns: repeat(7,1fr);
+  gap: 1px; padding: 0 12px 12px;
+}
+.cday {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--label-tertiary);
+  border-radius: 8px; cursor: default;
+}
+.cday.other  { color: var(--label-quaternary); opacity: 0.4; }
+.cday.wknd   { color: var(--label-quaternary); }
+.cday.past   { opacity: 0.3; }
+.cday.today  { background: var(--bg-inset); color: var(--label-primary); font-weight: 600; }
+.cday.meeting {
+  background: var(--accent); color: #fff;
+  font-weight: 700; border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,113,227,0.35);
+}
+.cday.wednesday {
+  background: var(--teal-soft);
+  color: var(--teal); font-weight: 600;
+  border-radius: 8px;
+}
+.cday.wed-skip {
+  color: var(--label-quaternary);
+  text-decoration: line-through;
+  opacity: 0.45;
+}
+.meeting-note {
+  margin: 0 12px 12px;
+  background: var(--bg-inset);
+  border-radius: var(--radius-sm);
+  padding: 8px 11px;
+  font-size: 11px; color: var(--label-secondary); line-height: 1.5;
+}
+.meeting-note strong { color: var(--accent); font-weight: 600; }
+
+/* ── REPORTS ── */
+.dept-block {
+  background: var(--bg-card);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.dept-hdr {
+  padding: 16px 20px;
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer; user-select: none;
+  transition: background 0.15s;
+}
+.dept-hdr:hover { background: var(--separator); }
+.dept-hdr-info { flex: 1; }
+.dept-hdr-name {
+  font-size: 15px; font-weight: 600; letter-spacing: -0.2px;
+  color: var(--label-primary);
+}
+.dept-hdr-role { font-size: 12px; color: var(--label-secondary); margin-top: 1px; }
+.count-badge {
+  font-size: 11px; font-weight: 600;
+  background: var(--bg-inset); color: var(--label-secondary);
+  padding: 3px 10px; border-radius: 20px;
+}
+.chevron {
+  width: 16px; height: 16px; color: var(--label-tertiary);
+  transition: transform 0.25s; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.chevron svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+.chevron.open { transform: rotate(180deg); }
+
+.dept-body {
+  overflow: hidden;
+  max-height: 3000px;
+  transition: max-height 0.35s ease;
+  border-top: 0.5px solid var(--separator);
+}
+.dept-body.closed { max-height: 0; border-top: none; }
+
+.report-tbl { width: 100%; border-collapse: collapse; }
+.report-tbl thead tr { background: var(--bg-inset); }
+.report-tbl th {
+  padding: 9px 20px; text-align: left;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--label-tertiary);
+  border-bottom: 0.5px solid var(--separator);
+}
+.report-tbl td {
+  padding: 11px 20px; font-size: 12.5px;
+  color: var(--label-secondary); line-height: 1.55;
+  border-bottom: 0.5px solid var(--separator);
+  vertical-align: top;
+}
+.report-tbl tr:last-child td { border-bottom: none; }
+.report-tbl tr:hover td { background: var(--bg-inset); }
+.rn { font-size: 12px; color: var(--label-quaternary); width: 32px; text-align: center; }
+.rname { font-weight: 500; color: var(--label-primary); font-size: 13px; }
+.rdesc { font-size: 12px; color: var(--label-secondary); }
+.chip {
+  display: inline-block; font-size: 10px; font-weight: 500;
+  padding: 2px 8px; border-radius: 6px; margin-top: 3px;
+}
+.chip-blue   { background: var(--blue-soft); color: var(--blue); }
+.chip-teal   { background: var(--teal-soft); color: var(--teal); }
+.chip-purple { background: var(--purple-soft); color: var(--purple); }
+.chip-amber  { background: var(--amber-soft); color: var(--amber); }
+.chip-gold   { background: rgba(245,166,35,0.12); color: var(--amber); }
+
+/* ── WEEKLY ── */
+.weekly-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-bottom: 20px; }
+.wcard {
+  background: var(--bg-card);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.wcard-head {
+  padding: 14px 18px 12px;
+  border-bottom: 0.5px solid var(--separator);
+  display: flex; align-items: center; gap: 11px;
+}
+.wcard-body { padding: 12px 18px 16px; }
+.witem {
+  font-size: 12.5px; color: var(--label-secondary); line-height: 1.55;
+  padding: 7px 0; border-bottom: 0.5px solid var(--separator);
+  display: flex; gap: 8px;
+}
+.witem:last-child { border-bottom: none; }
+.wbullet { font-weight: 700; font-size: 14px; flex-shrink: 0; line-height: 1.4; }
+.wbullet-teal   { color: var(--teal); }
+.wbullet-blue   { color: var(--blue); }
+.wbullet-purple { color: var(--purple); }
+.wbullet-amber  { color: var(--amber); }
+
+.rules-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 22px 24px;
+}
+.rules-title {
+  font-size: 14px; font-weight: 600; color: var(--label-primary);
+  margin-bottom: 14px; letter-spacing: -0.2px;
+}
+.rules-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.rule-item {
+  background: var(--bg-inset);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 12px; color: var(--label-secondary); line-height: 1.5;
+  display: flex; gap: 8px;
+}
+.rule-item::before { content: '✦'; font-size: 8px; color: var(--accent); flex-shrink: 0; margin-top: 3px; }
+
+/* ── REPORTS VAULT ── */
+.vmonth-btn {
+  padding: 5px 14px; font-size: 12px; font-weight: 500;
+  border-radius: 8px; border: 0.5px solid var(--separator);
+  background: var(--bg-inset); color: var(--label-secondary);
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.vmonth-btn:hover { border-color: var(--accent); color: var(--accent); }
+.vmonth-btn.active { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); font-weight: 600; }
+
+.vault-dept {
+  background: var(--bg-card);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 12px; overflow: hidden;
+}
+.vault-dept-hdr {
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 0.5px solid var(--separator);
+}
+.vault-progress-bar {
+  flex: 1; height: 4px; background: var(--bg-inset);
+  border-radius: 2px; overflow: hidden; max-width: 120px;
+}
+.vault-progress-fill {
+  height: 100%; border-radius: 2px;
+  transition: width 0.3s ease;
+}
+.vault-report-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 20px;
+  border-bottom: 0.5px solid var(--separator);
+  transition: background 0.15s;
+}
+.vault-report-row:last-child { border-bottom: none; }
+.vault-report-row:hover { background: var(--bg-inset); }
+.vault-rnum { font-size: 11px; color: var(--label-quaternary); width: 24px; text-align: center; flex-shrink: 0; }
+.vault-rname { font-size: 13px; font-weight: 500; color: var(--label-primary); flex: 1; }
+.vault-rdate { font-size: 11px; color: var(--label-tertiary); flex-shrink: 0; min-width: 80px; text-align: right; }
+.vault-status-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 11px; border-radius: 20px; border: none;
+  font-size: 11px; font-weight: 500; cursor: pointer;
+  transition: all 0.15s; flex-shrink: 0; white-space: nowrap;
+}
+.vs-pending  { background: var(--bg-inset); color: var(--label-tertiary); }
+.vs-progress { background: var(--amber-soft); color: var(--amber); }
+.vs-submitted{ background: var(--green-soft); color: var(--green); }
+.vs-reviewed { background: var(--accent-soft); color: var(--accent); }
+.vs-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.vs-pending  .vs-dot { background: var(--label-quaternary); }
+.vs-progress .vs-dot { background: var(--amber); }
+.vs-submitted .vs-dot { background: var(--green); }
+.vs-reviewed .vs-dot { background: var(--accent); }
+/* ── END VAULT ── */
+
+/* ── ORG TREE ── */
+.tree-node {
+  background: var(--bg-card);
+  border: 1.5px solid var(--separator-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  padding: 14px 16px;
+  text-align: center;
+  position: relative;
+}
+.tree-ceo { width: 180px; }
+.tn-av {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; margin: 0 auto 8px;
+}
+.tn-name { font-size: 14px; font-weight: 700; letter-spacing: -0.2px; color: var(--label-primary); }
+.tn-role { font-size: 10px; color: var(--label-secondary); margin-top: 2px; line-height: 1.4; }
+.tn-tag {
+  display: inline-block; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 20px; margin-top: 6px;
+}
+.tree-leaf {
+  background: var(--bg-card);
+  border: 1px solid var(--separator);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  padding: 10px 10px 8px;
+  text-align: center;
+}
+.tree-leaf-mid { padding: 10px; }
+.tree-leaf-sub { opacity: 0.75; }
+.tl-av {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; margin: 0 auto 5px;
+}
+.tl-name { font-size: 11px; font-weight: 600; color: var(--label-primary); line-height: 1.2; }
+.tl-role { font-size: 10px; color: var(--label-secondary); margin-top: 2px; line-height: 1.3; }
+
+.tree-v-line {
+  width: 1.5px; background: var(--separator-strong);
+}
+.tree-h-bar {
+  position: relative; height: 1.5px;
+  background: var(--separator-strong);
+  max-width: 1036px; margin: 0 auto;
+}
+.tree-h-tick {
+  position: absolute; top: 0;
+  width: 1.5px; height: 28px;
+  background: var(--separator-strong);
+  transform: translateX(-50%);
+}
+.tree-branch-bar {
+  position: relative; height: 1.5px;
+  background: var(--bar-color, var(--separator-strong));
+  opacity: 0.5;
+}
+.tree-branch-tick {
+  position: absolute; top: 0;
+  width: 1.5px; height: 20px;
+  background: var(--bar-color, var(--separator-strong));
+  transform: translateX(-50%);
+}
+.tree-dept-col { display: flex; flex-direction: column; align-items: stretch; }
+.tree-col-wrap { display: flex; flex-direction: column; align-items: center; }
+/* ── END ORG TREE ── */
+
+/* ── FOOTER ── */
+.vault-file-zone {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 10px 6px 6px;
+  border-radius: 8px;
+  border: 0.5px dashed var(--separator-strong);
+  background: var(--bg-inset);
+  cursor: pointer; transition: border-color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.vault-file-zone:hover { border-color: var(--accent); background: var(--accent-soft); }
+.vault-file-zone.has-file { border-style: solid; border-color: var(--green); background: var(--green-soft); }
+.vault-file-icon { font-size: 14px; flex-shrink: 0; line-height: 1; }
+.vault-file-label { font-size: 11px; color: var(--label-secondary); white-space: nowrap; }
+.vault-file-zone.has-file .vault-file-label { color: var(--green); font-weight: 500; }
+.vault-dl-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 8px; border: none;
+  font-size: 11px; font-weight: 500;
+  background: var(--accent-soft); color: var(--accent);
+  cursor: pointer; transition: background 0.15s; flex-shrink: 0;
+}
+.vault-dl-btn:hover { background: var(--accent); color: #fff; }
+/* ── END ADDITIONS ── */
+
+/* ── OPS REPORT FORM ── */
+.ops-section-card {
+  background: var(--bg-card);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 14px; overflow: hidden;
+}
+.ops-section-hdr {
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px;
+  background: var(--bg-inset);
+  border-bottom: 0.5px solid var(--separator);
+}
+.ops-section-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.ops-section-title { font-size: 13px; font-weight: 600; color: var(--label-primary); flex: 1; }
+.ops-section-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+.ops-field { display: flex; flex-direction: column; gap: 5px; }
+.ops-label { font-size: 11px; font-weight: 600; color: var(--label-secondary); letter-spacing: 0.03em; }
+.ops-label .ops-req { color: var(--red); margin-left: 2px; }
+.ops-input, .ops-select, .ops-textarea {
+  background: var(--bg-inset); border: 0.5px solid var(--separator-strong);
+  border-radius: var(--radius-sm); padding: 9px 12px;
+  font-size: 13px; color: var(--label-primary); font-family: inherit;
+  width: 100%; transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none; -webkit-appearance: none;
+}
+.ops-input:focus, .ops-select:focus, .ops-textarea:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,113,227,0.12);
+}
+.ops-textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+.ops-select { cursor: pointer; }
+.ops-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ops-row-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+.ops-rating { display: flex; gap: 6px; }
+.ops-rating-btn {
+  flex: 1; padding: 8px 4px; border-radius: 8px;
+  border: 0.5px solid var(--separator-strong);
+  background: var(--bg-inset); color: var(--label-secondary);
+  font-size: 12px; font-weight: 500; cursor: pointer; text-align: center;
+  transition: all 0.12s;
+}
+.ops-rating-btn:hover { border-color: var(--accent); color: var(--accent); }
+.ops-rating-btn.sel-green { background: var(--green-soft);  border-color: var(--green);  color: var(--green); }
+.ops-rating-btn.sel-amber { background: var(--amber-soft);  border-color: var(--amber);  color: var(--amber); }
+.ops-rating-btn.sel-red   { background: var(--red-soft);    border-color: var(--red);    color: var(--red);   }
+.ops-hint { font-size: 10px; color: var(--label-tertiary); margin-top: 1px; }
+.ops-submit-bar {
+  position: sticky; bottom: 0;
+  background: var(--bg-nav); backdrop-filter: blur(16px);
+  border-top: 0.5px solid var(--separator);
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  flex-wrap: wrap; z-index: 50;
+}
+.ops-submit-btn {
+  padding: 10px 28px; border-radius: 10px; border: none;
+  background: var(--accent); color: #fff;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.ops-submit-btn:hover  { background: #0077ED; }
+.ops-submit-btn:active { transform: scale(0.98); }
+.ops-submit-btn:disabled { background: var(--label-quaternary); cursor: not-allowed; }
+.ops-month-sel {
+  padding: 8px 12px; border-radius: 8px;
+  border: 0.5px solid var(--separator-strong);
+  background: var(--bg-inset); color: var(--label-primary);
+  font-size: 13px; font-family: inherit; cursor: pointer; outline: none;
+}
+.ops-success {
+  display: none; align-items: center; gap: 10px;
+  background: var(--green-soft); border: 0.5px solid var(--green);
+  border-radius: var(--radius); padding: 14px 18px;
+  font-size: 13px; color: var(--green); font-weight: 500; margin-bottom: 16px;
+}
+.ops-success.show { display: flex; }
+.ops-progress { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--label-secondary); }
+.ops-progress-bar { width: 120px; height: 5px; background: var(--bg-inset); border-radius: 3px; overflow: hidden; }
+.ops-progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+.vault-month-tabs {
+  display: flex; gap: 0; overflow-x: auto; scrollbar-width: none;
+  border-bottom: 0.5px solid var(--separator); margin-bottom: 16px;
+}
+.vault-month-tabs::-webkit-scrollbar { display: none; }
+.vmt-btn {
+  padding: 10px 18px; font-size: 12px; font-weight: 500;
+  color: var(--label-secondary); background: none; border: none;
+  border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; transition: all 0.15s;
+}
+.vmt-btn:hover { color: var(--label-primary); }
+.vmt-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.vmt-badge {
+  display: inline-block; font-size: 9px; font-weight: 700;
+  background: var(--accent-soft); color: var(--accent);
+  padding: 1px 5px; border-radius: 10px; margin-left: 4px; vertical-align: middle;
+}
+/* ── END FORM + VAULT ── */
+
+/* ── NORTH STAR ── */
+.ns-hero {
+  padding: 52px 32px 40px;
+  max-width: 960px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.ns-eyebrow {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 4px;
+}
+.ns-headline {
+  font-size: 34px; font-weight: 700; letter-spacing: -0.8px;
+  color: var(--label-primary); line-height: 1.15;
+}
+.ns-tagline {
+  font-size: 16px; color: var(--label-secondary); line-height: 1.6;
+  max-width: 560px; margin-top: 4px;
+}
+
+.ns-compare {
+  max-width: 960px; margin: 0 auto;
+  padding: 0 32px 28px;
+  display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 0;
+  align-items: stretch;
+}
+.ns-col {
+  background: var(--bg-card);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.ns-col.target {
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent);
+  position: relative;
+}
+.ns-col-badge {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 5px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ns-col-badge.past   { background: var(--bg-inset); color: var(--label-tertiary); }
+.ns-col-badge.future { background: var(--accent); color: #fff; }
+.ns-col-year {
+  font-size: 44px; font-weight: 700; letter-spacing: -2px;
+  line-height: 1; padding: 20px 24px 4px;
+}
+.ns-col-year.past   { color: var(--label-tertiary); }
+.ns-col-year.future { color: var(--accent); }
+.ns-col-metrics { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 12px; }
+.ns-metric-row {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 14px 16px;
+  background: var(--bg-inset);
+  border-radius: var(--radius-sm);
+}
+.ns-metric-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--label-tertiary);
+}
+.ns-metric-val {
+  font-size: 26px; font-weight: 700; letter-spacing: -0.5px;
+  color: var(--label-primary); line-height: 1.1;
+}
+.ns-metric-val.accent { color: var(--accent); }
+.ns-metric-sub {
+  font-size: 11px; color: var(--label-secondary); margin-top: 2px;
+}
+.ns-metric-delta {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600; margin-top: 4px;
+  padding: 2px 8px; border-radius: 20px;
+}
+.ns-delta-up   { background: var(--green-soft); color: var(--green); }
+.ns-delta-gold { background: var(--amber-soft); color: var(--amber); }
+
+.ns-arrow {
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 20px; color: var(--label-quaternary);
+  font-size: 28px; font-weight: 300; flex-shrink: 0;
+}
+
+.ns-kpis {
+  max-width: 960px; margin: 0 auto;
+  padding: 0 32px 28px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+}
+.ns-kpi {
+  background: var(--bg-card);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.ns-kpi-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--label-tertiary);
+}
+.ns-kpi-row { display: flex; align-items: baseline; gap: 12px; }
+.ns-kpi-from { font-size: 18px; font-weight: 600; color: var(--label-tertiary); letter-spacing: -0.3px; }
+.ns-kpi-to   { font-size: 24px; font-weight: 700; color: var(--label-primary); letter-spacing: -0.5px; }
+.ns-kpi-arrow-small { font-size: 14px; color: var(--label-quaternary); }
+.ns-kpi-growth {
+  font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 20px; display: inline-block;
+}
+.ns-kpi-desc { font-size: 11px; color: var(--label-secondary); line-height: 1.4; margin-top: 2px; }
+
+.ns-divider {
+  max-width: 960px; margin: 4px auto 0;
+  padding: 0 32px 24px;
+}
+.ns-divider-line {
+  height: 0.5px; background: var(--separator);
+}
+
+.ns-pillars {
+  max-width: 960px; margin: 0 auto;
+  padding: 0 32px 60px;
+}
+.ns-pillars-title {
+  font-size: 13px; font-weight: 600; color: var(--label-secondary);
+  letter-spacing: 0.02em; margin-bottom: 14px;
+  text-transform: uppercase; font-size: 10px; letter-spacing: 0.07em;
+}
+.ns-pillars-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+}
+.ns-pillar {
+  background: var(--bg-card);
+  border: 0.5px solid var(--separator);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 16px 18px;
+}
+.ns-pillar-icon {
+  font-size: 20px; margin-bottom: 10px; display: block;
+}
+.ns-pillar-name {
+  font-size: 13px; font-weight: 600; color: var(--label-primary);
+  margin-bottom: 4px; letter-spacing: -0.1px;
+}
+.ns-pillar-desc {
+  font-size: 11.5px; color: var(--label-secondary); line-height: 1.55;
+}
+/* ── END NORTH STAR ── */
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center; padding: 24px 32px 40px;
+  font-size: 11px; font-weight: 500; color: var(--label-quaternary);
+  letter-spacing: 0.04em; text-transform: uppercase;
+  border-top: 0.5px solid var(--separator);
+}
+/* ── MAINTENANCE DASHBOARD ── */
+.maint-stat-row { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px; }
+.maint-stat {
+  background:var(--bg-card); border:0.5px solid var(--separator);
+  border-radius:var(--radius); box-shadow:var(--shadow-sm);
+  padding:14px 16px; text-align:center;
+}
+.maint-stat-num { font-size:26px; font-weight:700; letter-spacing:-0.5px; display:block; }
+.maint-stat-lbl { font-size:10px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--label-tertiary); margin-top:3px; }
+
+.job-board { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
+.job-col { background:var(--bg-card); border:0.5px solid var(--separator); border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow:hidden; }
+.job-col-hdr { padding:12px 16px; border-bottom:0.5px solid var(--separator); display:flex; align-items:center; justify-content:space-between; }
+.job-col-title { font-size:12px; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; }
+.job-count-badge { font-size:11px; font-weight:700; padding:2px 8px; border-radius:12px; }
+.job-list { padding:8px; min-height:80px; display:flex; flex-direction:column; gap:6px; }
+.job-card {
+  background:var(--bg-inset); border:0.5px solid var(--separator);
+  border-radius:var(--radius-sm); padding:10px 12px;
+  cursor:pointer; transition:box-shadow 0.15s;
+}
+.job-card:hover { box-shadow:var(--shadow-md); }
+.job-card-top { display:flex; align-items:flex-start; justify-content:space-between; gap:6px; margin-bottom:5px; }
+.job-unit { font-size:11px; font-weight:700; color:var(--label-primary); }
+.job-pri {
+  font-size:9px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase;
+  padding:2px 6px; border-radius:6px; flex-shrink:0;
+}
+.pri-urgent  { background:var(--red-soft);    color:var(--red); }
+.pri-high    { background:var(--amber-soft);   color:var(--amber); }
+.pri-normal  { background:var(--blue-soft);    color:var(--blue); }
+.pri-low     { background:var(--green-soft);   color:var(--green); }
+.job-issue   { font-size:11.5px; color:var(--label-secondary); line-height:1.4; margin-bottom:5px; }
+.job-meta    { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.job-meta-chip { font-size:10px; color:var(--label-tertiary); }
+.job-source-tg { font-size:9px; font-weight:600; background:rgba(0,136,204,0.12); color:#0088cc; padding:1px 6px; border-radius:10px; }
+
+.maint-filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; align-items:center; }
+.maint-filter-select {
+  padding:6px 10px; border-radius:8px; border:0.5px solid var(--separator-strong);
+  background:var(--bg-inset); color:var(--label-primary);
+  font-size:12px; font-family:inherit; cursor:pointer; outline:none;
+}
+.maint-search {
+  flex:1; min-width:140px; padding:6px 10px; border-radius:8px;
+  border:0.5px solid var(--separator-strong); background:var(--bg-inset);
+  color:var(--label-primary); font-size:12px; font-family:inherit; outline:none;
+}
+.maint-search:focus, .maint-filter-select:focus { border-color:var(--accent); }
+
+.add-job-btn {
+  padding:7px 16px; border-radius:8px; border:none;
+  background:var(--accent); color:#fff; font-size:12px; font-weight:600;
+  cursor:pointer; transition:background 0.15s; flex-shrink:0;
+}
+.add-job-btn:hover { background:#0077ED; }
+
+.modal-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.5); backdrop-filter:blur(4px);
+  z-index:500; align-items:center; justify-content:center;
+}
+.modal-overlay.open { display:flex; }
+.modal-box {
+  background:var(--bg-card); border:0.5px solid var(--separator-strong);
+  border-radius:var(--radius-lg); box-shadow:var(--shadow-lg);
+  padding:24px; width:100%; max-width:500px; margin:20px;
+}
+.modal-title { font-size:16px; font-weight:600; color:var(--label-primary); margin-bottom:16px; letter-spacing:-0.2px; }
+.modal-fields { display:flex; flex-direction:column; gap:10px; margin-bottom:18px; }
+.modal-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.modal-actions { display:flex; gap:8px; justify-content:flex-end; }
+.modal-cancel { padding:8px 18px; border-radius:8px; border:0.5px solid var(--separator-strong); background:var(--bg-inset); color:var(--label-secondary); font-size:13px; cursor:pointer; }
+.modal-save   { padding:8px 22px; border-radius:8px; border:none; background:var(--accent); color:#fff; font-size:13px; font-weight:600; cursor:pointer; }
+
+.tg-setup-card {
+  background:var(--bg-card); border:0.5px solid var(--separator);
+  border-radius:var(--radius); box-shadow:var(--shadow-sm);
+  margin-bottom:14px; overflow:hidden;
+}
+.tg-setup-hdr {
+  padding:12px 18px; background:var(--bg-inset);
+  border-bottom:0.5px solid var(--separator);
+  display:flex; align-items:center; gap:10px;
+}
+.tg-step-num {
+  width:22px; height:22px; border-radius:50%;
+  background:#0088cc; color:#fff;
+  font-size:11px; font-weight:700;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.tg-setup-body { padding:14px 18px; }
+.tg-code {
+  background:var(--bg-inset); border:0.5px solid var(--separator-strong);
+  border-radius:var(--radius-sm); padding:10px 14px;
+  font-family:'SF Mono','Fira Code',monospace; font-size:11.5px;
+  color:var(--label-primary); line-height:1.7; overflow-x:auto;
+  white-space:pre; margin:8px 0;
+}
+.tg-note { font-size:12px; color:var(--label-secondary); line-height:1.6; margin-top:6px; }
+.tg-highlight { color:var(--accent); font-weight:600; }
+.copy-btn {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:4px 12px; border-radius:6px; border:none;
+  background:var(--accent-soft); color:var(--accent);
+  font-size:11px; font-weight:600; cursor:pointer;
+  transition:background 0.15s;
+}
+.copy-btn:hover { background:var(--accent); color:#fff; }
+/* ── END MAINTENANCE ── */
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">DADR <span>Digital</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="show('northstar', this)">North Star</button>
+    <button class="nav-tab" onclick="show('org', this)">Org Chart</button>
+    <button class="nav-tab" onclick="show('deptstr', this)">Dept Structure</button>
+    <button class="nav-tab" onclick="show('calendar', this)">2026 Calendar</button>
+    <button class="nav-tab" onclick="show('reports', this)">HOD Meeting Reports</button>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+    <div class="theme-toggle-knob" id="knob">☀️</div>
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     TAB 1 · NORTH STAR
+════════════════════════════════════════════ -->
+<div class="section active" id="tab-northstar">
+
+  <div class="page-header">
+    <div class="page-eyebrow">DADR Digital Sdn Bhd · SmartHome · Co. No. 1457742-M</div>
+    <div class="page-title">North Star</div>
+    <div class="page-sub">From where we started, to where we are, to where we are going. Every department owns a piece of this number.</div>
+  </div>
+
+  <div class="content">
+
+    <!-- 3-COLUMN: 2025 → 2026 → 2027 -->
+    <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;align-items:stretch;margin-bottom:16px;">
+
+    <!-- 2025 BASELINE -->
+    <div class="ns-col">
+      <div class="ns-col-badge past">
+        <span>Baseline</span><span>Closed FY2025</span>
+      </div>
+      <div class="ns-col-year past">2025</div>
+      <div class="ns-col-metrics">
+        <div class="ns-metric-row">
+          <div class="ns-metric-label">Total Revenue</div>
+          <div class="ns-metric-val">RM 6.5M</div>
+          <div class="ns-metric-sub">Gross revenue across all units &amp; villas</div>
+        </div>
+        <div class="ns-metric-row">
+          <div class="ns-metric-label">Net Profit Margin</div>
+          <div class="ns-metric-val">5%</div>
+          <div class="ns-metric-sub">Net profit ≈ RM 325,000</div>
+        </div>
+        <div class="ns-metric-row">
+          <div class="ns-metric-label">Apartment Portfolio</div>
+          <div class="ns-metric-val">100 units</div>
+          <div class="ns-metric-sub">Managed under SmartHome brand</div>
+        </div>
+        <div class="ns-metric-row">
+          <div class="ns-metric-label">Villa Portfolio</div>
+          <div class="ns-metric-val">10 villas</div>
+          <div class="ns-metric-sub">Luxury short-term rental villas</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARROW 1 -->
+    <div class="ns-arrow">→</div>
+
+    <!-- 2026 CURRENT TARGET -->
+    <div class="ns-col" style="border-color:var(--teal);box-shadow:var(--shadow-md);">
+      <div class="ns-col-badge" style="background:var(--teal);color:#fff;">
+        <span>Current Year Target</span><span>In Progress</span>
+      </div>
+      <div class="ns-col-year" style="color:var(--teal);">2026</div>
+      <div class="ns-col-metrics">
+        <div class="ns-metric-row" style="background:rgba(48,184,128,0.08);border:0.5px solid rgba(48,184,128,0.2);">
+          <div class="ns-metric-label" style="color:var(--teal);">Total Revenue</div>
+          <div class="ns-metric-val" style="color:var(--teal);">RM 10M</div>
+          <div class="ns-metric-sub">+53.8% growth from 2025 baseline</div>
+          <div class="ns-metric-delta ns-delta-up">↑ +RM 3.5M year-on-year</div>
+        </div>
+        <div class="ns-metric-row" style="background:var(--green-soft);border:0.5px solid rgba(52,199,89,0.15);">
+          <div class="ns-metric-label" style="color:var(--green);">Net Profit Margin</div>
+          <div class="ns-metric-val" style="color:var(--green);">7%</div>
+          <div class="ns-metric-sub">Net profit target ≈ RM 700,000</div>
+          <div class="ns-metric-delta ns-delta-up">↑ +2pp margin improvement</div>
+        </div>
+        <div class="ns-metric-row" style="background:var(--amber-soft);border:0.5px solid rgba(245,166,35,0.15);">
+          <div class="ns-metric-label" style="color:var(--amber);">Apartment Portfolio</div>
+          <div class="ns-metric-val" style="color:var(--amber);">130 units</div>
+          <div class="ns-metric-sub">+30 new units to acquire</div>
+          <div class="ns-metric-delta ns-delta-gold">↑ +30% portfolio growth</div>
+        </div>
+        <div class="ns-metric-row" style="background:var(--purple-soft);border:0.5px solid rgba(142,92,245,0.15);">
+          <div class="ns-metric-label" style="color:var(--purple);">Villa Portfolio</div>
+          <div class="ns-metric-val" style="color:var(--purple);">15 villas</div>
+          <div class="ns-metric-sub">+5 new luxury villas to secure</div>
+          <div class="ns-metric-delta" style="background:var(--purple-soft);color:var(--purple);">↑ 1.5× villa count</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARROW 2 -->
+    <div class="ns-arrow">→</div>
+
+    <!-- 2027 HORIZON TARGET -->
+    <div class="ns-col target">
+      <div class="ns-col-badge future">
+        <span>Horizon Target</span><span>FY2027</span>
+      </div>
+      <div class="ns-col-year future">2027</div>
+      <div class="ns-col-metrics">
+        <div class="ns-metric-row" style="background:var(--accent-soft);border:0.5px solid rgba(0,113,227,0.15);">
+          <div class="ns-metric-label" style="color:var(--accent);">Total Revenue</div>
+          <div class="ns-metric-val accent">RM 15M</div>
+          <div class="ns-metric-sub">+50% from 2026 target</div>
+          <div class="ns-metric-delta ns-delta-up">↑ +RM 5M on 2026</div>
+        </div>
+        <div class="ns-metric-row" style="background:var(--green-soft);border:0.5px solid rgba(52,199,89,0.15);">
+          <div class="ns-metric-label" style="color:var(--green);">Net Profit Margin</div>
+          <div class="ns-metric-val" style="color:var(--green);">10%</div>
+          <div class="ns-metric-sub">Net profit target ≈ RM 1.5M</div>
+          <div class="ns-metric-delta ns-delta-up">↑ Scale efficiencies kick in</div>
+        </div>
+        <div class="ns-metric-row" style="background:var(--amber-soft);border:0.5px solid rgba(245,166,35,0.15);">
+          <div class="ns-metric-label" style="color:var(--amber);">Apartment Portfolio</div>
+          <div class="ns-metric-val" style="color:var(--amber);">200 units</div>
+          <div class="ns-metric-sub">+70 units from 2026 base</div>
+          <div class="ns-metric-delta ns-delta-gold">↑ Full doubling achieved</div>
+        </div>
+        <div class="ns-metric-row" style="background:var(--purple-soft);border:0.5px solid rgba(142,92,245,0.15);">
+          <div class="ns-metric-label" style="color:var(--purple);">Villa Portfolio</div>
+          <div class="ns-metric-val" style="color:var(--purple);">30 villas</div>
+          <div class="ns-metric-sub">+15 villas from 2026 base</div>
+          <div class="ns-metric-delta" style="background:var(--purple-soft);color:var(--purple);">↑ 3× original villa count</div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- KPI GROWTH CARDS — 2026 focus -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+      <div class="ns-kpi">
+        <div class="ns-kpi-label">Revenue · 2025 → 2026</div>
+        <div class="ns-kpi-row">
+          <div class="ns-kpi-from">RM 6.5M</div>
+          <div class="ns-kpi-arrow-small">→</div>
+          <div class="ns-kpi-to" style="color:var(--teal);">RM 10M</div>
+        </div>
+        <div class="ns-kpi-growth" style="background:rgba(48,184,128,0.12);color:var(--teal);">+53.8%</div>
+        <div class="ns-kpi-desc">Realistic step-up — maximise existing portfolio while onboarding new units</div>
+      </div>
+      <div class="ns-kpi">
+        <div class="ns-kpi-label">Net Profit · 2025 → 2026</div>
+        <div class="ns-kpi-row">
+          <div class="ns-kpi-from">RM 325K</div>
+          <div class="ns-kpi-arrow-small">→</div>
+          <div class="ns-kpi-to" style="color:var(--green);">RM 700K</div>
+        </div>
+        <div class="ns-kpi-growth" style="background:var(--green-soft);color:var(--green);">+115%</div>
+        <div class="ns-kpi-desc">Margin moves from 5% to 7% — tighter ops costs and higher occupancy yield</div>
+      </div>
+      <div class="ns-kpi">
+        <div class="ns-kpi-label">Apartments · 2025 → 2026</div>
+        <div class="ns-kpi-row">
+          <div class="ns-kpi-from">100</div>
+          <div class="ns-kpi-arrow-small">→</div>
+          <div class="ns-kpi-to" style="color:var(--amber);">130 units</div>
+        </div>
+        <div class="ns-kpi-growth" style="background:var(--amber-soft);color:var(--amber);">+30 units</div>
+        <div class="ns-kpi-desc">Afiq targets 30 new apartment signings — laying the groundwork for 200 in 2027</div>
+      </div>
+      <div class="ns-kpi">
+        <div class="ns-kpi-label">Villas · 2025 → 2026</div>
+        <div class="ns-kpi-row">
+          <div class="ns-kpi-from">10</div>
+          <div class="ns-kpi-arrow-small">→</div>
+          <div class="ns-kpi-to" style="color:var(--purple);">15 villas</div>
+        </div>
+        <div class="ns-kpi-growth" style="background:var(--purple-soft);color:var(--purple);">+5 villas</div>
+        <div class="ns-kpi-desc">5 new premium villas added — each villa drives significantly higher revenue per unit</div>
+      </div>
+    </div>
+
+    <!-- DIVIDER -->
+    <div style="height:0.5px;background:var(--separator);margin-bottom:24px;"></div>
+
+    <!-- STRATEGIC PILLARS -->
+    <div style="margin-bottom:0;">
+      <div style="font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--label-tertiary);margin-bottom:14px;">How We Get There — Strategic Pillars</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+        <div class="ns-pillar">
+          <span class="ns-pillar-icon">📈</span>
+          <div class="ns-pillar-name">Maximise Revenue</div>
+          <div class="ns-pillar-desc">Umar pushes occupancy and ADR across 130 units and 15 villas to hit RM 10M in 2026 — the platform to accelerate to RM 15M in 2027.</div>
+        </div>
+        <div class="ns-pillar">
+          <span class="ns-pillar-icon">⚙️</span>
+          <div class="ns-pillar-name">Operational Excellence</div>
+          <div class="ns-pillar-desc">Amir keeps ops costs lean as the portfolio grows — tighter SOPs, a guest score above 4.8, and a team that scales without proportionally scaling cost.</div>
+        </div>
+        <div class="ns-pillar">
+          <span class="ns-pillar-icon">🏗️</span>
+          <div class="ns-pillar-name">Portfolio Expansion</div>
+          <div class="ns-pillar-desc">Afiq signs 30 new apartments and 5 new villas in 2026, laying the groundwork for the full 200-unit, 30-villa portfolio by end of 2027.</div>
+        </div>
+        <div class="ns-pillar">
+          <span class="ns-pillar-icon">💰</span>
+          <div class="ns-pillar-name">Financial Discipline</div>
+          <div class="ns-pillar-desc">Iqbal lifts net margin from 5% to 7% in 2026 by tightening cost controls and optimising our financing structure — building the foundation for 10% in 2027.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TAB 2 · ORG CHART
+════════════════════════════════════════════ -->
+<div class="section" id="tab-org">
+  <div class="page-header">
+    <div class="page-eyebrow">Organisation Structure · 2026</div>
+    <div class="page-title">DADR Digital Sdn Bhd</div>
+    <div class="page-sub">Co. No. 1457742-M · SmartHome Short-Term Rental · Shah Alam, Selangor</div>
+  </div>
+
+  <div class="metrics-row">
+    <div class="metric-pill accent"><span class="metric-num">RM 10M</span><div class="metric-label">2026 Revenue Target</div></div>
+    <div class="metric-pill"><span class="metric-num">100</span><div class="metric-label">Apartment Units</div></div>
+    <div class="metric-pill"><span class="metric-num">10</span><div class="metric-label">Villa Properties</div></div>
+    <div class="metric-pill"><span class="metric-num">6 mo</span><div class="metric-label">Runway Left</div></div>
+    <div class="metric-pill"><span class="metric-num">6</span><div class="metric-label">Leadership Pillars</div></div>
+  </div>
+
+  <div class="content">
+    <!-- CEO -->
+    <div class="org-ceo-wrap">
+      <div class="org-ceo-card">
+        <div class="avatar av-gold">ZH</div>
+        <div class="person-role-badge badge-gold">Chief Executive Officer</div>
+        <div class="person-name">Zharif</div>
+        <div class="person-title">Group CEO & Founding Director</div>
+        <div class="person-mandate">
+          Leads the executive team with full accountability over company strategy, culture, and performance. Ensures each HOD executes their mandate with clarity, cohesion, and urgency. Sets the vision for DADR Digital's aggressive expansion roadmap — from portfolio growth and investor relations to brand positioning and operational standards. Final decision authority on all major commercial, financial, and strategic matters. Drives the 2026 revenue doubling mission as the unifying force across all divisions.
+        </div>
+      </div>
+    </div>
+
+    <!-- Tree connector -->
+    <div style="display:flex;flex-direction:column;align-items:center;margin:0 0 0;">
+      <div style="width:1px;height:28px;background:var(--separator-strong);"></div>
+      <div class="org-tree-h" style="width:100%;">
+        <div class="org-tree-tick" style="left:37.5%;transform:translateX(-50%);"></div>
+        <div class="org-tree-tick" style="left:62.5%;transform:translateX(-50%);"></div>
+      </div>
+    </div>
+
+    <!-- PROJECT PIPELINE FLOW -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-bottom:0;max-width:100%;">
+      <div style="text-align:center;padding:6px 4px;">
+        <div style="display:inline-flex;align-items:center;gap:5px;background:var(--purple-soft);border:0.5px solid rgba(142,92,245,0.3);border-radius:20px;padding:4px 12px;">
+          <span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--purple);">① Secure</span>
+        </div>
+      </div>
+      <div style="text-align:center;padding:6px 4px;">
+        <div style="display:inline-flex;align-items:center;gap:5px;background:var(--amber-soft);border:0.5px solid rgba(245,166,35,0.3);border-radius:20px;padding:4px 12px;">
+          <span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--amber);">② Finance</span>
+        </div>
+      </div>
+      <div style="text-align:center;padding:6px 4px;">
+        <div style="display:inline-flex;align-items:center;gap:5px;background:rgba(224,82,82,0.1);border:0.5px solid rgba(224,82,82,0.3);border-radius:20px;padding:4px 12px;">
+          <span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#E05252;">③ Build</span>
+        </div>
+      </div>
+      <div style="text-align:center;padding:6px 4px;">
+        <div style="display:inline-flex;align-items:center;gap:5px;background:var(--blue-soft);border:0.5px solid rgba(0,113,227,0.3);border-radius:20px;padding:4px 12px;">
+          <span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--blue);">④ Operate</span>
+        </div>
+      </div>
+      <div style="text-align:center;padding:6px 4px;">
+        <div style="display:inline-flex;align-items:center;gap:5px;background:var(--teal-soft);border:0.5px solid rgba(48,184,128,0.3);border-radius:20px;padding:4px 12px;">
+          <span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--teal);">⑤ Sell</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOD GRID — pipeline order -->
+    <div class="hod-grid" style="grid-template-columns:repeat(5,1fr);">
+
+      <!-- AFIQ — SECURE -->
+      <div class="hod-card">
+        <div class="hod-card-top">
+          <div class="avatar av-purple" style="width:40px;height:40px;font-size:14px;">AQ</div>
+          <div class="person-role-badge badge-purple">HOD</div>
+          <div class="person-name" style="font-size:16px;">Afiq</div>
+          <div class="person-title" style="margin-bottom:0;">Business Development</div>
+        </div>
+        <div class="hod-dept-label" style="color:var(--purple);">Secure the Project</div>
+        <ul class="hod-mandate">
+          <li class="li-purple">Source, evaluate and close new property projects aligned to DADR's expansion roadmap</li>
+          <li class="li-purple">Build and manage active investor network — pitch to angel investors and family offices</li>
+          <li class="li-purple">Acquire new units from upcoming property developments on favourable deal terms</li>
+          <li class="li-purple">Pursue villa expansion pipeline across Klang Valley and resort corridors</li>
+          <li class="li-purple">Network with banking professionals to unlock financing lines and grow credit capacity</li>
+          <li class="li-purple">Develop all investor proposals, PPMs, JV term sheets, and financial models</li>
+          <li class="li-purple">Hand off secured projects to Iqbal for financing and Izzy for execution</li>
+        </ul>
+        <div class="kpi-footer">
+          <div class="kpi-footer-label">Primary KPI</div>
+          <div class="kpi-footer-val">New units secured · Capital raised · Investor pipeline value</div>
+        </div>
+      </div>
+
+      <!-- IQBAL — FINANCE -->
+      <div class="hod-card">
+        <div class="hod-card-top">
+          <div class="avatar av-amber" style="width:40px;height:40px;font-size:14px;">IQ</div>
+          <div class="person-role-badge badge-amber">HOD</div>
+          <div class="person-name" style="font-size:16px;">Iqbal</div>
+          <div class="person-title" style="margin-bottom:0;">Finance &amp; HR</div>
+        </div>
+        <div class="hod-dept-label" style="color:var(--amber);">Finance the Project</div>
+        <ul class="hod-mandate">
+          <li class="li-amber">Structure and secure project financing — bank loans, facilities, and investor capital</li>
+          <li class="li-amber">Capture and reconcile all revenue inflows across every unit and villa</li>
+          <li class="li-amber">Produce monthly cashflow projections, financial forecasts, and scenario models</li>
+          <li class="li-amber">Maintain all accounting records in compliance with Malaysian standards — audit-ready</li>
+          <li class="li-amber">Handle corporate tax planning, SST compliance, and LHDN statutory submissions</li>
+          <li class="li-amber">Evaluate loan accessibility, banking facilities, and credit optimisation for growth</li>
+          <li class="li-amber">Deliver P&amp;L by unit, portfolio profitability, and HOD budget variance monthly to CEO</li>
+        </ul>
+        <div class="kpi-footer">
+          <div class="kpi-footer-label">Primary KPI</div>
+          <div class="kpi-footer-val">Cashflow accuracy · Monthly close · Cost per unit · Net profit margin</div>
+        </div>
+      </div>
+
+      <!-- IZZY — BUILD -->
+      <div class="hod-card" style="border-color:rgba(224,82,82,0.25);">
+        <div class="hod-card-top">
+          <div class="avatar" style="background:rgba(224,82,82,0.12);color:#E05252;width:40px;height:40px;font-size:14px;">IZ</div>
+          <div class="person-role-badge" style="background:rgba(224,82,82,0.12);color:#E05252;">HOD</div>
+          <div class="person-name" style="font-size:16px;">Izzy</div>
+          <div class="person-title" style="margin-bottom:0;">Design &amp; Build</div>
+        </div>
+        <div class="hod-dept-label" style="color:#E05252;">Manage the Project</div>
+        <ul class="hod-mandate">
+          <li style="border-bottom:0.5px solid var(--separator);display:flex;gap:7px;align-items:flex-start;padding:5px 0;font-size:11.5px;color:var(--label-secondary);line-height:1.55;"><span style="color:#E05252;font-size:16px;line-height:1.2;flex-shrink:0;">·</span>Lead all interior design, space planning, and aesthetic direction for new and existing units</li>
+          <li style="border-bottom:0.5px solid var(--separator);display:flex;gap:7px;align-items:flex-start;padding:5px 0;font-size:11.5px;color:var(--label-secondary);line-height:1.55;"><span style="color:#E05252;font-size:16px;line-height:1.2;flex-shrink:0;">·</span>Manage all construction, fitout, and renovation projects from brief to handover</li>
+          <li style="border-bottom:0.5px solid var(--separator);display:flex;gap:7px;align-items:flex-start;padding:5px 0;font-size:11.5px;color:var(--label-secondary);line-height:1.55;"><span style="color:#E05252;font-size:16px;line-height:1.2;flex-shrink:0;">·</span>Oversee contractor, vendor, and supplier relationships for all build works</li>
+          <li style="border-bottom:0.5px solid var(--separator);display:flex;gap:7px;align-items:flex-start;padding:5px 0;font-size:11.5px;color:var(--label-secondary);line-height:1.55;"><span style="color:#E05252;font-size:16px;line-height:1.2;flex-shrink:0;">·</span>Prepare BOQs, cost estimates, and project timelines for all build and refurb works</li>
+          <li style="border-bottom:0.5px solid var(--separator);display:flex;gap:7px;align-items:flex-start;padding:5px 0;font-size:11.5px;color:var(--label-secondary);line-height:1.55;"><span style="color:#E05252;font-size:16px;line-height:1.2;flex-shrink:0;">·</span>Ensure new units are fully fitted, styled, and ready for handover to Amir's ops team</li>
+          <li style="display:flex;gap:7px;align-items:flex-start;padding:5px 0;font-size:11.5px;color:var(--label-secondary);line-height:1.55;"><span style="color:#E05252;font-size:16px;line-height:1.2;flex-shrink:0;">·</span>Maintain brand consistency across all SmartHome unit designs and villa aesthetics</li>
+        </ul>
+        <div class="kpi-footer" style="background:rgba(224,82,82,0.06);">
+          <div class="kpi-footer-label" style="color:#E05252;">Primary KPI</div>
+          <div class="kpi-footer-val">Project delivery on time &amp; on budget · Units handed over · Design quality</div>
+        </div>
+      </div>
+
+      <!-- AMIR — OPERATE -->
+      <div class="hod-card">
+        <div class="hod-card-top">
+          <div class="avatar av-blue" style="width:40px;height:40px;font-size:14px;">AM</div>
+          <div class="person-role-badge badge-blue">HOD</div>
+          <div class="person-name" style="font-size:16px;">Amir</div>
+          <div class="person-title" style="margin-bottom:0;">Operations</div>
+        </div>
+        <div class="hod-dept-label" style="color:var(--blue);">Operate the Project</div>
+        <ul class="hod-mandate">
+          <li class="li-blue">Take over units from Izzy and run day-to-day operations with zero disruption</li>
+          <li class="li-blue">Manage and schedule the housekeeping team — all units guest-ready after every checkout</li>
+          <li class="li-blue">Oversee maintenance team with proactive calendar and rapid response to repair requests</li>
+          <li class="li-blue">Direct customer service team for superior guest experiences and review management</li>
+          <li class="li-blue">Develop and enforce Standard Operating Procedures for all operational functions</li>
+          <li class="li-blue">Monitor and maintain property condition to protect asset value for Umar to sell</li>
+          <li class="li-blue">Submit weekly ops dashboards on turnaround time, maintenance SLAs, and guest scores</li>
+        </ul>
+        <div class="kpi-footer">
+          <div class="kpi-footer-label">Primary KPI</div>
+          <div class="kpi-footer-val">Guest score ≥ 4.8 · Housekeeping SLA · Maintenance resolution rate</div>
+        </div>
+      </div>
+
+      <!-- UMAR — SELL -->
+      <div class="hod-card">
+        <div class="hod-card-top">
+          <div class="avatar av-teal" style="width:40px;height:40px;font-size:14px;">UM</div>
+          <div class="person-role-badge badge-teal">HOD</div>
+          <div class="person-name" style="font-size:16px;">Umar</div>
+          <div class="person-title" style="margin-bottom:0;">Sales &amp; Marketing</div>
+        </div>
+        <div class="hod-dept-label" style="color:var(--teal);">Sell the Project</div>
+        <ul class="hod-mandate">
+          <li class="li-teal">Drive maximum occupancy and revenue across all units delivered by Amir's team</li>
+          <li class="li-teal">Manage all OTA channels — Airbnb, Booking.com, Agoda, Traveloka, and direct bookings</li>
+          <li class="li-teal">Own SmartHome brand identity, creative direction, and all digital marketing campaigns</li>
+          <li class="li-teal">Oversee backend booking system, channel manager, PMS, and dynamic rate tools</li>
+          <li class="li-teal">Implement dynamic pricing based on seasonality, demand signals, and competitor benchmarking</li>
+          <li class="li-teal">Drive direct booking growth to reduce OTA commission dependency</li>
+          <li class="li-teal">Report weekly occupancy, ADR, RevPAR performance to CEO with action plans</li>
+        </ul>
+        <div class="kpi-footer">
+          <div class="kpi-footer-label">Primary KPI</div>
+          <div class="kpi-footer-val">Portfolio occupancy rate · ADR · RevPAR · OTA ranking</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TAB 3 · DEPT STRUCTURE
+════════════════════════════════════════════ -->
+<div class="section" id="tab-deptstr">
+  <div class="page-header">
+    <div class="page-eyebrow">DADR Digital Sdn Bhd · 2026</div>
+    <div class="page-title">Department Structure</div>
+    <div class="page-sub">Full team hierarchy across all five departments with reporting lines. Pipeline order: Secure → Finance → Build → Operate → Sell.</div>
+  </div>
+
+  <div class="metrics-row">
+    <div class="metric-pill"><span class="metric-num">5</span><div class="metric-label">Departments</div></div>
+    <div class="metric-pill accent"><span class="metric-num">5</span><div class="metric-label">HODs</div></div>
+    <div class="metric-pill"><span class="metric-num">25+</span><div class="metric-label">Housekeeping</div></div>
+    <div class="metric-pill"><span class="metric-num">4</span><div class="metric-label">Maint. Crew</div></div>
+    <div class="metric-pill"><span class="metric-num">~43</span><div class="metric-label">Total Team</div></div>
+  </div>
+
+  <div class="content" style="max-width:1100px;">
+
+    <!-- CEO NODE -->
+    <div style="display:flex;justify-content:center;margin-bottom:0;">
+      <div class="tree-node tree-ceo">
+        <div class="tn-av" style="background:rgba(245,166,35,0.15);color:var(--amber);">ZH</div>
+        <div class="tn-name">Zharif</div>
+        <div class="tn-role">Group CEO</div>
+        <div class="tn-tag" style="background:rgba(245,166,35,0.15);color:var(--amber);">CEO</div>
+      </div>
+    </div>
+
+    <div class="tree-v-line" style="height:28px;margin:0 auto;"></div>
+
+    <!-- H-BAR: 5 ticks -->
+    <div class="tree-h-bar">
+      <div class="tree-h-tick" style="left:10%"></div>
+      <div class="tree-h-tick" style="left:30%"></div>
+      <div class="tree-h-tick" style="left:50%"></div>
+      <div class="tree-h-tick" style="left:70%"></div>
+      <div class="tree-h-tick" style="left:90%"></div>
+    </div>
+
+    <!-- PIPELINE LABELS -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:0;margin-bottom:4px;">
+      <div style="text-align:center;"><span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--purple);">① Secure</span></div>
+      <div style="text-align:center;"><span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--amber);">② Finance</span></div>
+      <div style="text-align:center;"><span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#E05252;">③ Build</span></div>
+      <div style="text-align:center;"><span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--blue);">④ Operate</span></div>
+      <div style="text-align:center;"><span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--teal);">⑤ Sell</span></div>
+    </div>
+
+    <!-- 5 COLUMNS -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:0;">
+
+      <!-- IQBAL -->
+      <div class="tree-dept-col">
+        <div class="tree-v-line" style="height:28px;"></div>
+        <div class="tree-node" style="border-color:var(--amber);">
+          <div class="tn-av" style="background:var(--amber-soft);color:var(--amber);">IQ</div>
+          <div class="tn-name">Iqbal</div>
+          <div class="tn-role">HOD — Finance &amp; HR</div>
+          <div class="tn-tag" style="background:var(--amber-soft);color:var(--amber);">HOD</div>
+        </div>
+        <div class="tree-v-line" style="height:20px;"></div>
+        <div class="tree-branch-bar" style="--bar-color:var(--amber);">
+          <div class="tree-branch-tick" style="left:16.66%"></div>
+          <div class="tree-branch-tick" style="left:50%"></div>
+          <div class="tree-branch-tick" style="left:83.33%"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">
+          <div class="tree-col-wrap"><div class="tree-v-line" style="height:20px;"></div><div class="tree-leaf" style="border-color:rgba(245,166,35,0.3);"><div class="tl-av" style="background:var(--amber-soft);color:var(--amber);">YN</div><div class="tl-name">Yana</div><div class="tl-role">Fin. Controller</div></div></div>
+          <div class="tree-col-wrap"><div class="tree-v-line" style="height:20px;"></div><div class="tree-leaf" style="border-color:rgba(245,166,35,0.3);"><div class="tl-av" style="background:var(--amber-soft);color:var(--amber);">RS</div><div class="tl-name">Ros</div><div class="tl-role">Bookkeeper</div><div class="tl-role" style="font-size:9px;color:var(--label-tertiary);">Owners Reports</div></div></div>
+          <div class="tree-col-wrap"><div class="tree-v-line" style="height:20px;"></div><div class="tree-leaf" style="border-color:rgba(52,199,89,0.3);"><div class="tl-av" style="background:var(--green-soft);color:var(--green);">SH</div><div class="tl-name">Shu</div><div class="tl-role">HR Manager</div></div></div>
+        </div>
+      </div>
+
+      <!-- IZZY -->
+      <div class="tree-dept-col">
+        <div class="tree-v-line" style="height:28px;"></div>
+        <div class="tree-node" style="border-color:#E05252;">
+          <div class="tn-av" style="background:rgba(224,82,82,0.12);color:#E05252;">IZ</div>
+          <div class="tn-name">Izzy</div>
+          <div class="tn-role">HOD — Design &amp; Build</div>
+          <div class="tn-tag" style="background:rgba(224,82,82,0.12);color:#E05252;">HOD</div>
+        </div>
+        <div class="tree-v-line" style="height:20px;"></div>
+        <div style="display:flex;justify-content:center;">
+          <div class="tree-col-wrap" style="width:85%;">
+            <div class="tree-v-line" style="height:20px;"></div>
+            <div class="tree-leaf" style="border-color:rgba(224,82,82,0.3);padding:12px;">
+              <div style="font-size:9px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#E05252;margin-bottom:8px;">Scope</div>
+              <div style="display:flex;flex-direction:column;gap:5px;">
+                <div style="display:flex;align-items:flex-start;gap:5px;"><div style="width:4px;height:4px;border-radius:50%;background:#E05252;flex-shrink:0;margin-top:5px;"></div><div style="font-size:10px;color:var(--label-secondary);">Interior design &amp; space planning</div></div>
+                <div style="display:flex;align-items:flex-start;gap:5px;"><div style="width:4px;height:4px;border-radius:50%;background:#E05252;flex-shrink:0;margin-top:5px;"></div><div style="font-size:10px;color:var(--label-secondary);">Construction &amp; fitout management</div></div>
+                <div style="display:flex;align-items:flex-start;gap:5px;"><div style="width:4px;height:4px;border-radius:50%;background:#E05252;flex-shrink:0;margin-top:5px;"></div><div style="font-size:10px;color:var(--label-secondary);">BOQ, contractor &amp; vendor management</div></div>
+                <div style="display:flex;align-items:flex-start;gap:5px;"><div style="width:4px;height:4px;border-radius:50%;background:#E05252;flex-shrink:0;margin-top:5px;"></div><div style="font-size:10px;color:var(--label-secondary);">Unit setup &amp; handover readiness</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AMIR -->
+      <div class="tree-dept-col">
+        <div class="tree-v-line" style="height:28px;"></div>
+        <div class="tree-node" style="border-color:var(--blue);">
+          <div class="tn-av" style="background:var(--blue-soft);color:var(--blue);">AM</div>
+          <div class="tn-name">Amir</div>
+          <div class="tn-role">HOD — Operations</div>
+          <div class="tn-tag" style="background:var(--blue-soft);color:var(--blue);">HOD</div>
+        </div>
+        <div class="tree-v-line" style="height:20px;"></div>
+        <div class="tree-branch-bar" style="--bar-color:var(--blue);">
+          <div class="tree-branch-tick" style="left:16.66%"></div>
+          <div class="tree-branch-tick" style="left:50%"></div>
+          <div class="tree-branch-tick" style="left:83.33%"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+          <div class="tree-col-wrap">
+            <div class="tree-v-line" style="height:20px;"></div>
+            <div class="tree-leaf tree-leaf-mid" style="border-color:rgba(0,113,227,0.3);">
+              <div class="tl-av" style="background:var(--blue-soft);color:var(--blue);">ER</div>
+              <div class="tl-name">Erin</div><div class="tl-role">Admin Manager</div>
+            </div>
+            <div class="tree-v-line" style="height:14px;"></div>
+            <div class="tree-leaf tree-leaf-sub" style="border-color:rgba(0,113,227,0.2);border-style:dashed;">
+              <div class="tl-av" style="background:var(--blue-soft);color:var(--blue);font-size:9px;">HK</div>
+              <div class="tl-name" style="font-size:10px;">25 Housekeeping</div>
+              <div class="tl-role" style="font-size:9px;">All units &amp; villas</div>
+            </div>
+          </div>
+          <div class="tree-col-wrap">
+            <div class="tree-v-line" style="height:20px;"></div>
+            <div class="tree-leaf tree-leaf-mid" style="border-color:rgba(0,113,227,0.3);background:var(--bg-inset);">
+              <div style="font-size:9px;font-weight:600;color:var(--blue);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px;">Customer Service</div>
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <div style="display:flex;align-items:center;gap:5px;"><div class="tl-av" style="background:var(--blue-soft);color:var(--blue);width:20px;height:20px;font-size:8px;flex-shrink:0;">SY</div><div><div style="font-size:10px;font-weight:500;color:var(--label-primary);">Sayed</div><div style="font-size:9px;color:var(--label-secondary);">Guest Comms</div></div></div>
+                <div style="display:flex;align-items:center;gap:5px;"><div class="tl-av" style="background:var(--blue-soft);color:var(--blue);width:20px;height:20px;font-size:8px;flex-shrink:0;">RL</div><div><div style="font-size:10px;font-weight:500;color:var(--label-primary);">Rasel</div><div style="font-size:9px;color:var(--label-secondary);">Guest Comms</div></div></div>
+                <div style="display:flex;align-items:center;gap:5px;"><div class="tl-av" style="background:var(--purple-soft);color:var(--purple);width:20px;height:20px;font-size:8px;flex-shrink:0;">HN</div><div><div style="font-size:10px;font-weight:500;color:var(--label-primary);">Hannah</div><div style="font-size:9px;color:var(--purple);">Villa Specialist</div></div></div>
+                <div style="height:0.5px;background:var(--separator);margin:2px 0;"></div>
+                <div style="display:flex;align-items:center;gap:5px;"><div class="tl-av" style="background:var(--teal-soft);color:var(--teal);width:20px;height:20px;font-size:8px;flex-shrink:0;">DI</div><div><div style="font-size:10px;font-weight:500;color:var(--label-primary);">Diana</div><div style="font-size:9px;color:var(--teal);">Social Media · Aftersales</div></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="tree-col-wrap">
+            <div class="tree-v-line" style="height:20px;"></div>
+            <div class="tree-leaf tree-leaf-mid" style="border-color:rgba(245,166,35,0.3);">
+              <div class="tl-av" style="background:var(--amber-soft);color:var(--amber);">NQ</div>
+              <div class="tl-name">Naqib</div><div class="tl-role">Maint. Supervisor</div>
+            </div>
+            <div class="tree-v-line" style="height:14px;"></div>
+            <div class="tree-leaf tree-leaf-sub" style="border-color:rgba(245,166,35,0.2);border-style:dashed;">
+              <div class="tl-av" style="background:var(--amber-soft);color:var(--amber);font-size:9px;">×4</div>
+              <div class="tl-name" style="font-size:10px;">4 Maint. Crew</div>
+              <div class="tl-role" style="font-size:9px;">Repairs &amp; upgrades</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UMAR -->
+      <div class="tree-dept-col">
+        <div class="tree-v-line" style="height:28px;"></div>
+        <div class="tree-node" style="border-color:var(--teal);">
+          <div class="tn-av" style="background:var(--teal-soft);color:var(--teal);">UM</div>
+          <div class="tn-name">Umar</div>
+          <div class="tn-role">HOD — Sales &amp; Marketing</div>
+          <div class="tn-tag" style="background:var(--teal-soft);color:var(--teal);">HOD</div>
+        </div>
+        <div class="tree-v-line" style="height:20px;"></div>
+        <div class="tree-branch-bar" style="--bar-color:var(--teal);">
+          <div class="tree-branch-tick" style="left:25%"></div>
+          <div class="tree-branch-tick" style="left:75%"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">
+          <div class="tree-col-wrap"><div class="tree-v-line" style="height:20px;"></div><div class="tree-leaf" style="border-color:rgba(48,184,128,0.3);"><div class="tl-av" style="background:var(--teal-soft);color:var(--teal);">AZ</div><div class="tl-name">Azira</div><div class="tl-role">Revenue Manager</div></div></div>
+          <div class="tree-col-wrap"><div class="tree-v-line" style="height:20px;"></div><div class="tree-leaf" style="border-color:rgba(48,184,128,0.3);"><div class="tl-av" style="background:var(--teal-soft);color:var(--teal);">ZL</div><div class="tl-name">Zul</div><div class="tl-role">Social Media</div></div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- LEGEND -->
+    <div style="margin-top:28px;padding:14px 20px;background:var(--bg-card);border:0.5px solid var(--separator);border-radius:var(--radius);box-shadow:var(--shadow-sm);display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+      <div style="font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--label-tertiary);">Legend</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--label-secondary);"><div style="width:12px;height:12px;border-radius:50%;background:var(--purple-soft);border:1.5px solid var(--purple);"></div>Business Development</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--label-secondary);"><div style="width:12px;height:12px;border-radius:50%;background:var(--amber-soft);border:1.5px solid var(--amber);"></div>Finance &amp; HR</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--label-secondary);"><div style="width:12px;height:12px;border-radius:50%;background:rgba(224,82,82,0.12);border:1.5px solid #E05252;"></div>Design &amp; Build</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--label-secondary);"><div style="width:12px;height:12px;border-radius:50%;background:var(--blue-soft);border:1.5px solid var(--blue);"></div>Operations</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--label-secondary);"><div style="width:12px;height:12px;border-radius:50%;background:var(--teal-soft);border:1.5px solid var(--teal);"></div>Sales &amp; Marketing</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--label-secondary);"><div style="width:28px;height:1px;border-top:1.5px dashed var(--label-quaternary);"></div>Sub-team / crew</div>
+    </div>
+
+    <!-- AFIQ -->
+      <div class="tree-dept-col">
+        <div class="tree-v-line" style="height:28px;"></div>
+        <div class="tree-node" style="border-color:var(--purple);">
+          <div class="tn-av" style="background:var(--purple-soft);color:var(--purple);">AQ</div>
+          <div class="tn-name">Afiq</div>
+          <div class="tn-role">HOD — Business Dev</div>
+          <div class="tn-tag" style="background:var(--purple-soft);color:var(--purple);">HOD</div>
+        </div>
+        <div class="tree-v-line" style="height:20px;"></div>
+        <div style="display:flex;justify-content:center;">
+          <div class="tree-col-wrap" style="width:80%;">
+            <div class="tree-v-line" style="height:20px;"></div>
+            <div class="tree-leaf" style="border-color:rgba(142,92,245,0.3);">
+              <div class="tl-av" style="background:var(--purple-soft);color:var(--purple);">AR</div>
+              <div class="tl-name">Ammar</div>
+              <div class="tl-role">REN — Property Sourcing</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TAB 4 · CALENDAR
+════════════════════════════════════════════ -->
+<div class="section" id="tab-calendar">
+  <div class="page-header">
+    <div class="page-eyebrow">HOD Meeting Schedule</div>
+    <div class="page-title">2026 Meeting Calendar</div>
+    <div class="page-sub">Monthly leadership meeting on the <strong>10th of every month</strong>, June through December. All HODs present full report decks.</div>
+  </div>
+
+  <div class="content">
+    <div class="banner">
+      <div class="banner-text"><strong>North Star — Revenue Doubling Mission</strong><br>Every meeting is measured against one question: Are we on track to hit RM 13M by December 2026?</div>
+      <div class="banner-stat"><span class="banner-stat-num">RM 13M</span><div class="banner-stat-label">2026 Revenue Target</div></div>
+    </div>
+
+    <div class="cal-legend">
+      <div class="cal-legend-item"><div class="cal-dot cal-dot-accent"></div> HOD Meeting (10th)</div>
+      <div class="cal-legend-item"><div class="cal-dot cal-dot-teal"></div> Wednesday HOD Check-ins (4 sessions)</div>
+      <div class="cal-legend-item"><div class="cal-dot" style="background:var(--label-quaternary);"></div> Skipped — HOD meeting week</div>
+    </div>
+
+    <div class="months-grid" id="months-grid"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TAB 3 · MONTHLY REPORTS
+════════════════════════════════════════════ -->
+<div class="section" id="tab-reports">
+  <div class="page-header">
+    <div class="page-eyebrow">HOD Meeting</div>
+    <div class="page-title">HOD Meeting Report Requirements</div>
+    <div class="page-sub">All reports prepared and ready on the 10th. Every report connects back to the RM 13M target. Tap any department to expand.</div>
+  </div>
+
+  <div class="content">
+    <div class="banner">
+      <div class="banner-text"><strong>Presentation Order:</strong> Zharif (CEO Opening) → Iqbal (Finance) → Amir (Operations) → Izzy (Design &amp; Build) → Umar (Sales &amp; Marketing) → Afiq (Business Development Close)</div>
+      <div class="banner-stat"><span class="banner-stat-num">51</span><div class="banner-stat-label">Total Reports</div></div>
+    </div>
+
+    <!-- CEO -->
+    <div class="dept-block">
+      <div class="dept-hdr" onclick="toggleBlock(this)">
+        <div class="avatar av-gold" style="width:36px;height:36px;font-size:13px;flex-shrink:0;">ZH</div>
+        <div class="dept-hdr-info">
+          <div class="dept-hdr-name">Zharif — CEO Opening Scorecard</div>
+          <div class="dept-hdr-role">Chief Executive Officer · Opens every HOD meeting</div>
+        </div>
+        <div class="count-badge">4 Reports</div>
+        <div class="chevron open"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="dept-body">
+        <table class="report-tbl">
+          <thead><tr><th style="width:36px">#</th><th style="width:200px">Report</th><th>What it covers</th><th style="width:170px">Key Metric</th></tr></thead>
+          <tbody>
+            <tr><td class="rn">01</td><td class="rname">Revenue Tracker</td><td class="rdesc">MTD actual vs monthly target, YTD vs RM 13M plan, projected year-end run rate. Visual gauge showing % to target.</td><td><span class="chip chip-gold">Revenue vs RM 13M plan</span></td></tr>
+            <tr><td class="rn">02</td><td class="rname">Portfolio Health Snapshot</td><td class="rdesc">Total active units online, units offline for maintenance, new units onboarded this month, total portfolio size vs target.</td><td><span class="chip chip-gold">Active units count</span></td></tr>
+            <tr><td class="rn">03</td><td class="rname">Strategic Priorities Update</td><td class="rdesc">Progress on top 3 company-level initiatives. Red / Amber / Green status for each. Owner and deadline assigned.</td><td><span class="chip chip-gold">RAG status · 3 initiatives</span></td></tr>
+            <tr><td class="rn">04</td><td class="rname">Risk Register</td><td class="rdesc">Issues that could derail revenue target. Each risk rated by likelihood and impact, with named owner and resolution deadline.</td><td><span class="chip chip-gold">Open risks · Actions</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- IQBAL -->
+    <div class="dept-block">
+      <div class="dept-hdr" onclick="toggleBlock(this)">
+        <div class="avatar av-amber" style="width:36px;height:36px;font-size:13px;flex-shrink:0;">IQ</div>
+        <div class="dept-hdr-info">
+          <div class="dept-hdr-name">Iqbal — Finance</div>
+          <div class="dept-hdr-role">HOD Finance · Accounting · Cashflow · Analytics · Tax · Compliance</div>
+        </div>
+        <div class="count-badge">10 Reports</div>
+        <div class="chevron open"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="dept-body">
+        <table class="report-tbl">
+          <thead><tr><th style="width:36px">#</th><th style="width:200px">Report</th><th>What it covers</th><th style="width:170px">Key Metric</th></tr></thead>
+          <tbody>
+            <tr><td class="rn">01</td><td class="rname">P&L Summary</td><td class="rdesc">Revenue, gross profit, operating expenses, EBITDA, and net profit for the month. Actual vs budget. YTD cumulative vs RM 13M plan.</td><td><span class="chip chip-amber">EBITDA · Net profit margin</span></td></tr>
+            <tr><td class="rn">02</td><td class="rname">Revenue Reconciliation</td><td class="rdesc">Total booking collections reconciled against all OTA payouts, direct collections, and outstanding receivables. Unreconciled items flagged.</td><td><span class="chip chip-amber">Reconciled % · Receivables</span></td></tr>
+            <tr><td class="rn">03</td><td class="rname">Cashflow Statement</td><td class="rdesc">Opening balance, total cash in, total cash out, closing balance. 3-month rolling forecast with base, upside, and downside scenarios.</td><td><span class="chip chip-amber">Closing balance · 90-day</span></td></tr>
+            <tr><td class="rn">04</td><td class="rname">Budget vs Actual</td><td class="rdesc">Every department's spend vs approved budget. Variance explanation mandatory for anything over ±10%. Trend over last 3 months.</td><td><span class="chip chip-amber">Variance % per department</span></td></tr>
+            <tr><td class="rn">05</td><td class="rname">Accounts Payable & Receivable</td><td class="rdesc">Outstanding vendor payments and aging, OTA settlement timelines, overdue collections, and any disputed amounts requiring resolution.</td><td><span class="chip chip-amber">AP aging · AR overdue</span></td></tr>
+            <tr><td class="rn">06</td><td class="rname">Loan & Financing Schedule</td><td class="rdesc">All active loans: monthly repayments, outstanding balances, interest cost, next review dates, and total debt service ratio.</td><td><span class="chip chip-amber">Total debt · Monthly repay</span></td></tr>
+            <tr><td class="rn">07</td><td class="rname">Unit-Level Profitability Report</td><td class="rdesc">Revenue and cost breakdown per unit. Identifies highest profit contributors and loss-making units. Guides BD acquisition and ops priorities.</td><td><span class="chip chip-amber">Profit per unit · Bottom units</span></td></tr>
+            <tr><td class="rn">08</td><td class="rname">Tax & Compliance Update</td><td class="rdesc">SST submissions status, LHDN obligations, upcoming statutory deadlines, any audit queries, and compliance actions completed.</td><td><span class="chip chip-amber">Compliance calendar</span></td></tr>
+            <tr><td class="rn">09</td><td class="rname">Business Analytics Highlight</td><td class="rdesc">One key data-driven insight the leadership team must act on — cost creep, revenue leakage, a unit cluster outperforming.</td><td><span class="chip chip-amber">1 insight · Action needed</span></td></tr>
+            <tr><td class="rn">10</td><td class="rname">Financial Outlook & Recommendations</td><td class="rdesc">Projected year-end position vs RM 13M target. Gap analysis. Advisory on cost, capital deployment, or financial risk for CEO decision.</td><td><span class="chip chip-amber">Year-end projection</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+    <!-- AMIR -->
+    <div class="dept-block">
+      <div class="dept-hdr" onclick="toggleBlock(this)">
+        <div class="avatar av-blue" style="width:36px;height:36px;font-size:13px;flex-shrink:0;">AM</div>
+        <div class="dept-hdr-info">
+          <div class="dept-hdr-name">Amir — Operations</div>
+          <div class="dept-hdr-role">HOD Operations · Housekeeping · Maintenance · Customer Service</div>
+        </div>
+        <div class="count-badge">10 Reports</div>
+        <div class="chevron open"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="dept-body">
+        <table class="report-tbl">
+          <thead><tr><th style="width:36px">#</th><th style="width:200px">Report</th><th>What it covers</th><th style="width:170px">Key Metric</th></tr></thead>
+          <tbody>
+            <tr><td class="rn">01</td><td class="rname">Guest Review Score Summary</td><td class="rdesc">Overall portfolio rating, platform breakdown (Airbnb, Booking.com, Agoda), trend vs last month, and units with declining scores.</td><td><span class="chip chip-blue">Target ≥ 4.8 stars</span></td></tr>
+            <tr><td class="rn">02</td><td class="rname">Housekeeping Performance</td><td class="rdesc">Total turnovers completed, average turnaround time vs SLA, missed or delayed cleans, team attendance and productivity rate.</td><td><span class="chip chip-blue">Turnaround SLA</span></td></tr>
+            <tr><td class="rn">03</td><td class="rname">Maintenance Work Order Report</td><td class="rdesc">Total work orders raised, resolved, and pending. Average resolution time by category. Top recurring issues and root cause trends.</td><td><span class="chip chip-blue">Resolution rate · Open WOs</span></td></tr>
+            <tr><td class="rn">04</td><td class="rname">Complaint & Incident Log</td><td class="rdesc">All guest complaints and escalations, how each was resolved, resolution time, and pattern analysis to prevent recurrence.</td><td><span class="chip chip-blue">Complaints · Resolution time</span></td></tr>
+            <tr><td class="rn">05</td><td class="rname">Vendor & Supplier Performance</td><td class="rdesc">Cleaning, linen, and maintenance vendors — reliability score, cost trend, quality issues, and recommended vendor changes.</td><td><span class="chip chip-blue">Vendor score · Cost vs budget</span></td></tr>
+            <tr><td class="rn">06</td><td class="rname">Unit Condition Report</td><td class="rdesc">Properties flagged for wear, damage, or refurbishment. Severity rating, estimated cost to rectify, and action timeline.</td><td><span class="chip chip-blue">Units flagged · Capex est.</span></td></tr>
+            <tr><td class="rn">07</td><td class="rname">Team Headcount & HR Update</td><td class="rdesc">Current team size across housekeeping, maintenance, and CS. Open vacancies, performance flags, training completed this month.</td><td><span class="chip chip-blue">Headcount · Vacancies</span></td></tr>
+            <tr><td class="rn">08</td><td class="rname">SOP Compliance Audit</td><td class="rdesc">Spot-check results on whether teams are following SOPs. Compliance score, gaps identified, and corrective actions taken.</td><td><span class="chip chip-blue">SOP compliance score</span></td></tr>
+            <tr><td class="rn">09</td><td class="rname">Operational Cost Summary</td><td class="rdesc">Total ops spend by housekeeping, maintenance, and customer service. Actual vs budget, cost per unit, and variance explanation.</td><td><span class="chip chip-blue">Ops cost per unit</span></td></tr>
+            <tr><td class="rn">10</td><td class="rname">Next Month Ops Readiness</td><td class="rdesc">High-occupancy periods requiring extra deployment, planned maintenance shutdowns, new units to onboard, and team readiness.</td><td><span class="chip chip-blue">Deployment plan</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- IZZY -->
+    <div class="dept-block">
+      <div class="dept-hdr" onclick="toggleBlock(this)">
+        <div class="avatar" style="background:rgba(224,82,82,0.12);color:#E05252;width:36px;height:36px;font-size:13px;flex-shrink:0;">IZ</div>
+        <div class="dept-hdr-info">
+          <div class="dept-hdr-name">Izzy — Design &amp; Build</div>
+          <div class="dept-hdr-role">HOD Design &amp; Build · Construction · Fitout · Renovation · Unit Handover</div>
+        </div>
+        <div class="count-badge">8 Reports</div>
+        <div class="chevron open"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="dept-body">
+        <table class="report-tbl">
+          <thead><tr><th style="width:36px">#</th><th style="width:200px">Report</th><th>What it covers</th><th style="width:170px">Key Metric</th></tr></thead>
+          <tbody>
+            <tr><td class="rn">01</td><td class="rname">Active Project Status</td><td class="rdesc">All active construction, fitout, and renovation projects — current phase, % completion, timeline vs original schedule, and flagged delays.</td><td><span class="chip" style="background:rgba(224,82,82,0.1);color:#E05252;">On-time delivery %</span></td></tr>
+            <tr><td class="rn">02</td><td class="rname">Budget vs Actual — Project Costs</td><td class="rdesc">Spend to date vs approved BOQ for each active project. Variance explanation for any line item exceeding budget by more than 10%.</td><td><span class="chip" style="background:rgba(224,82,82,0.1);color:#E05252;">Budget variance %</span></td></tr>
+            <tr><td class="rn">03</td><td class="rname">Contractor & Vendor Performance</td><td class="rdesc">All active contractors — work quality assessment, payment schedule status, disputes or delays, and recommendation to continue or replace.</td><td><span class="chip" style="background:rgba(224,82,82,0.1);color:#E05252;">Contractor score</span></td></tr>
+            <tr><td class="rn">04</td><td class="rname">Units Handed Over This Month</td><td class="rdesc">New units fully fitted, inspected, and formally handed to Amir's operations team. Handover checklist completion rate and any defects noted.</td><td><span class="chip" style="background:rgba(224,82,82,0.1);color:#E05252;">Units handed over</span></td></tr>
+            <tr><td class="rn">05</td><td class="rname">Design Concept Updates</td><td class="rdesc">New design briefs approved, mood boards signed off, and any changes to unit design standards or villa aesthetic direction this month.</td><td><span class="chip" style="background:rgba(224,82,82,0.1);color:#E05252;">Concepts approved</span></td></tr>
+            <tr><td class="rn">06</td><td class="rname">Procurement & Materials Log</td><td class="rdesc">All materials, furniture, and FF&amp;E procured this month. Lead times, cost vs budget, any supply delays impacting project timelines.</td><td><span class="chip" style="background:rgba(224,82,82,0.1);color:#E05252;">Procurement spend · Delays</span></td></tr>
+            <tr><td class="rn">07</td><td class="rname">Defects &amp; Snagging Report</td><td class="rdesc">Outstanding defects across all delivered or near-complete units. Snagging list per unit, responsible contractor, and target resolution date.</td><td><span class="chip" style="background:rgba(224,82,82,0.1);color:#E05252;">Open snags · Resolved</span></td></tr>
+            <tr><td class="rn">08</td><td class="rname">Next Month Project Pipeline</td><td class="rdesc">Projects scheduled to start or reach key milestones next month. Resources required, expected spend, and decisions needed from CEO or Afiq/Iqbal.</td><td><span class="chip" style="background:rgba(224,82,82,0.1);color:#E05252;">Projects starting · Decisions</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- UMAR -->
+    <div class="dept-block">
+      <div class="dept-hdr" onclick="toggleBlock(this)">
+        <div class="avatar av-teal" style="width:36px;height:36px;font-size:13px;flex-shrink:0;">UM</div>
+        <div class="dept-hdr-info">
+          <div class="dept-hdr-name">Umar — Sales & Marketing</div>
+          <div class="dept-hdr-role">HOD Sales & Marketing · OTAs · Branding · Booking Systems</div>
+        </div>
+        <div class="count-badge">9 Reports</div>
+        <div class="chevron open"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="dept-body">
+        <table class="report-tbl">
+          <thead><tr><th style="width:36px">#</th><th style="width:200px">Report</th><th>What it covers</th><th style="width:170px">Key Metric</th></tr></thead>
+          <tbody>
+            <tr><td class="rn">01</td><td class="rname">Occupancy Report</td><td class="rdesc">Overall portfolio occupancy %, apartments vs villas split, MTD vs target, vs same period last year. Bottom underperforming units flagged.</td><td><span class="chip chip-teal">Occupancy % vs target</span></td></tr>
+            <tr><td class="rn">02</td><td class="rname">Revenue Performance</td><td class="rdesc">Total booking revenue, ADR (Average Daily Rate), RevPAR, revenue per villa vs apartment. Trend vs prior month.</td><td><span class="chip chip-teal">ADR · RevPAR · Total Rev</span></td></tr>
+            <tr><td class="rn">03</td><td class="rname">OTA Channel Breakdown</td><td class="rdesc">Bookings and revenue split by Airbnb, Booking.com, Agoda, Traveloka, and direct. Channel contribution % and total commission cost.</td><td><span class="chip chip-teal">Channel share · Commission</span></td></tr>
+            <tr><td class="rn">04</td><td class="rname">Pricing & Rate Strategy</td><td class="rdesc">Rate changes implemented, demand periods identified, competitor benchmarking, and planned rate adjustments for next month.</td><td><span class="chip chip-teal">Rate changes · Demand cal</span></td></tr>
+            <tr><td class="rn">05</td><td class="rname">Marketing Campaign Report</td><td class="rdesc">All campaigns run: spend, reach, impressions, leads generated, conversion rate to confirmed bookings. ROI per campaign.</td><td><span class="chip chip-teal">Spend · Conversions · ROI</span></td></tr>
+            <tr><td class="rn">06</td><td class="rname">Brand & Social Media Metrics</td><td class="rdesc">Follower growth across platforms, engagement rate, top-performing content, website traffic, and brand sentiment summary.</td><td><span class="chip chip-teal">Followers · Engagement %</span></td></tr>
+            <tr><td class="rn">07</td><td class="rname">Booking Lead Time & Cancellations</td><td class="rdesc">Average days booked in advance, cancellation rate and revenue impact, last-minute booking patterns, and mitigation actions.</td><td><span class="chip chip-teal">Cancellation % · Lead time</span></td></tr>
+            <tr><td class="rn">08</td><td class="rname">Low-Occupancy Unit Spotlight</td><td class="rdesc">Bottom 10 underperforming units by occupancy %. Root cause analysis for each and a specific action plan with timeline.</td><td><span class="chip chip-teal">10 units · Action plan</span></td></tr>
+            <tr><td class="rn">09</td><td class="rname">Next Month Sales Forecast</td><td class="rdesc">Forward booking pace already on the books, expected occupancy projection, revenue forecast, and initiatives to close any gap.</td><td><span class="chip chip-teal">Forward booking · Forecast</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AFIQ -->
+    <div class="dept-block">
+      <div class="dept-hdr" onclick="toggleBlock(this)">
+        <div class="avatar av-purple" style="width:36px;height:36px;font-size:13px;flex-shrink:0;">AQ</div>
+        <div class="dept-hdr-info">
+          <div class="dept-hdr-name">Afiq — Business Development</div>
+          <div class="dept-hdr-role">HOD Business Development · Investor Relations · Portfolio Expansion · Financing</div>
+        </div>
+        <div class="count-badge">10 Reports</div>
+        <div class="chevron open"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="dept-body">
+        <table class="report-tbl">
+          <thead><tr><th style="width:36px">#</th><th style="width:200px">Report</th><th>What it covers</th><th style="width:170px">Key Metric</th></tr></thead>
+          <tbody>
+            <tr><td class="rn">01</td><td class="rname">Portfolio Expansion Tracker</td><td class="rdesc">New units signed or onboarded this month. Running total of secured units vs annual target. Portfolio spread by location.</td><td><span class="chip chip-purple">Units added · Running total</span></td></tr>
+            <tr><td class="rn">02</td><td class="rname">Active Deal Pipeline</td><td class="rdesc">All active deals in negotiation. Stage (prospecting / due diligence / term sheet / signed), expected close date, projected revenue per deal.</td><td><span class="chip chip-purple">Pipeline value · Deals active</span></td></tr>
+            <tr><td class="rn">03</td><td class="rname">Investor Pipeline Update</td><td class="rdesc">Active investor conversations, proposals sent this month, capital committed, capital pending. Stage of each investor relationship.</td><td><span class="chip chip-purple">Capital committed</span></td></tr>
+            <tr><td class="rn">04</td><td class="rname">Financing & Banking Update</td><td class="rdesc">Loan applications in progress, facilities approved, drawdowns made, total available credit headroom across all banking relationships.</td><td><span class="chip chip-purple">Credit headroom · Approvals</span></td></tr>
+            <tr><td class="rn">05</td><td class="rname">New Villa Opportunities</td><td class="rdesc">Specific villa prospects reviewed this month. Location, asking price, projected STR yield, due diligence status, and CEO recommendation needed.</td><td><span class="chip chip-purple">Villas reviewed · Yield</span></td></tr>
+            <tr><td class="rn">06</td><td class="rname">Project Development Update</td><td class="rdesc">Status on active construction or fitout projects. Timeline vs schedule, budget spent vs approved, and flagged risks.</td><td><span class="chip chip-purple">Timeline · Budget burn</span></td></tr>
+            <tr><td class="rn">07</td><td class="rname">Investor Returns Tracker</td><td class="rdesc">Performance for all existing investors — actual returns vs committed returns, payment schedules, and investor communication actions needed.</td><td><span class="chip chip-purple">Actual vs committed returns</span></td></tr>
+            <tr><td class="rn">08</td><td class="rname">Partnership & Networking Activity</td><td class="rdesc">Key meetings held with developers, bankers, investors, or strategic partners. Outcomes, next steps, and follow-up actions committed.</td><td><span class="chip chip-purple">Meetings held · Follow-ups</span></td></tr>
+            <tr><td class="rn">09</td><td class="rname">New Unit Revenue Contribution</td><td class="rdesc">How much of current and projected revenue is from newly onboarded units. Ramp-up performance vs underwriting assumptions.</td><td><span class="chip chip-purple">New unit revenue %</span></td></tr>
+            <tr><td class="rn">10</td><td class="rname">Next Month BD Priorities</td><td class="rdesc">Top 3 deals or projects to close in the next 30 days. Resources needed, blockers to resolve, and decisions required from CEO.</td><td><span class="chip chip-purple">Top 3 closes · CEO decisions</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+<div class="footer">DADR Digital Sdn Bhd &nbsp;·&nbsp; Co. No. 1457742-M &nbsp;·&nbsp; HOD Command Centre 2026 &nbsp;·&nbsp; Confidential</div>
+
+<script>
+function show(tab, btn) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  const el = document.getElementById('tab-' + tab);
+  if(el) el.classList.add('active');
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('knob').textContent = isDark ? '☀️' : '🌙';
+}
+
+function toggleBlock(hdr) {
+  const body = hdr.nextElementSibling;
+  const chev = hdr.querySelector('.chevron');
+  body.classList.toggle('closed');
+  chev.classList.toggle('open');
+}
+
+// ── HELPERS ─────────────────────────────────────
+function getMonWeekStart(date) {
+  // returns Monday of the week containing date
+  const d = new Date(date);
+  const dow = d.getDay(); // 0=Sun
+  const diff = dow === 0 ? -6 : 1 - dow;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function isWednesdayInMonthlyWeek(y, m, day) {
+  // Is this Wednesday in the same Mon–Sun week as the 10th?
+  const tenth = new Date(y, m, 10); tenth.setHours(0,0,0,0);
+  const wedDate = new Date(y, m, day); wedDate.setHours(0,0,0,0);
+  const tenthWeekMon = getMonWeekStart(tenth);
+  const tenthWeekSun = new Date(tenthWeekMon); tenthWeekSun.setDate(tenthWeekMon.getDate()+6);
+  return wedDate >= tenthWeekMon && wedDate <= tenthWeekSun;
+}
+
+// ── BUILD CALENDAR ──────────────────────────────
+(function buildCal() {
+  const grid = document.getElementById('months-grid');
+  const months = [
+    {name:'June',      m:5,  y:2026},
+    {name:'July',      m:6,  y:2026},
+    {name:'August',    m:7,  y:2026},
+    {name:'September', m:8,  y:2026},
+    {name:'October',   m:9,  y:2026},
+    {name:'November',  m:10, y:2026},
+    {name:'December',  m:11, y:2026},
+  ];
+  const labels = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  const today  = new Date(); today.setHours(0,0,0,0);
+
+  months.forEach(({name, m, y}) => {
+    const first   = new Date(y, m, 1).getDay();
+    const total   = new Date(y, m+1, 0).getDate();
+    const prevEnd = new Date(y, m, 0).getDate();
+
+    // Count active Wednesdays for this month
+    let activeWeds = 0;
+    for(let d=1; d<=total; d++) {
+      if(new Date(y,m,d).getDay()===3 && !isWednesdayInMonthlyWeek(y,m,d)) activeWeds++;
+    }
+
+    const card = document.createElement('div');
+    card.className = 'month-card';
+
+    const hdrHtml = `
+      <div class="month-head">
+        <div><div class="month-name-text">${name}</div><div class="month-sub">${y}</div></div>
+        <div class="month-badge-tag">10th · HOD Mtg</div>
+      </div>`;
+
+    const dayHdrHtml = `<div class="cal-days-hdr">${labels.map(l=>`<div class="cal-lbl">${l}</div>`).join('')}</div>`;
+
+    card.innerHTML = hdrHtml + dayHdrHtml + `<div class="cal-days-grid" id="cg-${m}"></div>
+    <div class="meeting-note"><strong>10 ${name} 2026</strong> — HOD Meeting · All HODs · Full Report Deck</div>
+    <div class="meeting-note" style="background:var(--teal-soft);margin-top:0;"><span style="color:var(--teal);font-weight:600;">Wednesdays ×${activeWeds}</span> — HOD Check-ins · 10 AM – 5 PM · 4 sessions/day</div>`;
+    grid.appendChild(card);
+
+    const cg = card.querySelector('#cg-' + m);
+
+    // prev month fill
+    for(let i = first-1; i >= 0; i--) {
+      const d = document.createElement('div');
+      d.className = 'cday other'; d.textContent = prevEnd - i; cg.appendChild(d);
+    }
+    // current month
+    for(let day = 1; day <= total; day++) {
+      const d   = document.createElement('div');
+      const dt  = new Date(y, m, day);
+      const dow = dt.getDay();
+      let cls   = 'cday';
+      const isWed = dow === 3;
+      const skip  = isWed && isWednesdayInMonthlyWeek(y, m, day);
+
+      if(day === 10)            cls += ' meeting';
+      else if(skip)             cls += ' wed-skip';
+      else if(isWed)            cls += ' wednesday';
+      else if(dow===0||dow===6) cls += ' wknd';
+
+      if(dt < today && day !== 10 && !isWed) cls += ' past';
+      if(dt.getTime()===today.getTime()) cls += ' today';
+      d.className = cls; d.textContent = day; cg.appendChild(d);
+    }
+    // next month fill
+    const used = cg.children.length;
+    const fill = used <= 35 ? 35 - used : 42 - used;
+    for(let i = 1; i <= fill; i++) {
+      const d = document.createElement('div');
+      d.className = 'cday other'; d.textContent = i; cg.appendChild(d);
+    }
+  });
+})();
+
+// ── BUILD WEDNESDAY SCHEDULE TABLE ──────────────
+(function buildWedTable() {
+  const el = document.getElementById('wed-schedule-table');
+  if(!el) return;
+
+  const months = [
+    {name:'June',      m:5,  y:2026},
+    {name:'July',      m:6,  y:2026},
+    {name:'August',    m:7,  y:2026},
+    {name:'September', m:8,  y:2026},
+    {name:'October',   m:9,  y:2026},
+    {name:'November',  m:10, y:2026},
+    {name:'December',  m:11, y:2026},
+  ];
+
+  const slots = [
+    {initials:'IQ', dept:'Iqbal — Finance',             time:'10:00 – 11:30 AM',  color:'amber'},
+    {initials:'AQ', dept:'Afiq — Business Development', time:'11:30 AM – 1:00 PM', color:'purple'},
+    {initials:'UM', dept:'Umar — Sales & Marketing',    time:'2:00 – 3:30 PM',    color:'teal'},
+    {initials:'AM', dept:'Amir — Operations',           time:'3:30 – 5:00 PM',    color:'blue'},
+  ];
+
+  let html = `<table style="width:100%;border-collapse:collapse;">
+    <thead>
+      <tr style="background:var(--bg-inset);">
+        <th style="padding:9px 20px;text-align:left;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--label-tertiary);border-bottom:0.5px solid var(--separator);width:110px;">Date</th>
+        <th style="padding:9px 20px;text-align:left;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--label-tertiary);border-bottom:0.5px solid var(--separator);">Session 1</th>
+        <th style="padding:9px 20px;text-align:left;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--label-tertiary);border-bottom:0.5px solid var(--separator);">Session 2</th>
+        <th style="padding:9px 20px;text-align:left;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--label-tertiary);border-bottom:0.5px solid var(--separator);">Session 3</th>
+        <th style="padding:9px 20px;text-align:left;font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--label-tertiary);border-bottom:0.5px solid var(--separator);">Session 4</th>
+      </tr>
+    </thead><tbody>`;
+
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  months.forEach(({name, m, y}) => {
+    const total = new Date(y, m+1, 0).getDate();
+    let firstRow = true;
+    for(let day = 1; day <= total; day++) {
+      const dt  = new Date(y, m, day);
+      if(dt.getDay() !== 3) continue; // only Wednesdays
+      const skip = isWednesdayInMonthlyWeek(y, m, day);
+      const dateStr = `${String(day).padStart(2,'0')} ${monthNames[m]}`;
+
+      if(skip) {
+        html += `<tr style="opacity:0.45;">
+          <td style="padding:10px 20px;font-size:12px;font-weight:500;color:var(--label-tertiary);border-bottom:0.5px solid var(--separator);">
+            ${firstRow ? `<span style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--label-quaternary);display:block;margin-bottom:3px;">${name}</span>` : ''}
+            ${dateStr}
+          </td>
+          <td colspan="4" style="padding:10px 20px;font-size:12px;color:var(--label-quaternary);border-bottom:0.5px solid var(--separator);">
+            — Skipped · HOD Meeting week (10 ${name})
+          </td>
+        </tr>`;
+      } else {
+        const sessionCols = slots.map(s => {
+          const c = s.color;
+          return `<td style="padding:10px 20px;border-bottom:0.5px solid var(--separator);vertical-align:top;">
+            <div style="font-size:10px;font-weight:600;color:var(--${c});letter-spacing:0.04em;">${s.initials}</div>
+            <div style="font-size:11.5px;font-weight:500;color:var(--label-primary);margin-top:1px;">${s.time}</div>
+            <div style="font-size:11px;color:var(--label-secondary);margin-top:1px;">${s.dept.split(' — ')[1]}</div>
+          </td>`;
+        }).join('');
+
+        html += `<tr>
+          <td style="padding:10px 20px;font-size:12px;font-weight:500;color:var(--label-primary);border-bottom:0.5px solid var(--separator);vertical-align:top;">
+            ${firstRow ? `<span style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--accent);display:block;margin-bottom:3px;">${name}</span>` : ''}
+            ${dateStr}
+          </td>
+          ${sessionCols}
+        </tr>`;
+      }
+      firstRow = false;
+    }
+  });
+
+  html += '</tbody></table>';
+  el.innerHTML = html;
+})();
+
+// ── REPORTS VAULT ──────────────────────────────
+(function buildVault() {
+  const MONTHS = ['June','July','August','September','October','November','December'];
+
+  const DEPTS = [
+    {
+      id:'ceo', initials:'ZH', name:'Zharif — CEO Scorecard', avCls:'av-gold', color:'amber',
+      reports:['Revenue Tracker','Portfolio Health Snapshot','Strategic Priorities Update','Risk Register']
+    },
+    {
+      id:'umar', initials:'UM', name:'Umar — Sales & Marketing', avCls:'av-teal', color:'teal',
+      reports:['Occupancy Report','Revenue Performance','OTA Channel Breakdown','Pricing & Rate Strategy','Marketing Campaign Report','Brand & Social Media Metrics','Booking Lead Time & Cancellations','Low-Occupancy Unit Spotlight','Next Month Sales Forecast']
+    },
+    {
+      id:'amir', initials:'AM', name:'Amir — Operations', avCls:'av-blue', color:'blue',
+      reports:['Guest Review Score Summary','Housekeeping Performance','Maintenance Work Order Report','Complaint & Incident Log','Vendor & Supplier Performance','Unit Condition Report','Team Headcount & HR Update','SOP Compliance Audit','Operational Cost Summary','Next Month Ops Readiness']
+    },
+    {
+      id:'afiq', initials:'AQ', name:'Afiq — Business Development', avCls:'av-purple', color:'purple',
+      reports:['Portfolio Expansion Tracker','Active Deal Pipeline','Investor Pipeline Update','Financing & Banking Update','New Villa Opportunities','Project Development Update','Investor Returns Tracker','Partnership & Networking Activity','New Unit Revenue Contribution','Next Month BD Priorities']
+    },
+    {
+      id:'iqbal', initials:'IQ', name:'Iqbal — Finance', avCls:'av-amber', color:'amber',
+      reports:['P&L Summary','Revenue Reconciliation','Cashflow Statement','Budget vs Actual','Accounts Payable & Receivable','Loan & Financing Schedule','Unit-Level Profitability Report','Tax & Compliance Update','Business Analytics Highlight','Financial Outlook & Recommendations']
+    }
+  ];
+
+  const STATUSES = ['pending','progress','submitted','reviewed'];
+  const STATUS_LABELS = {pending:'Pending', progress:'In Progress', submitted:'Submitted', reviewed:'Reviewed'};
+
+  // State per month: statuses + uploaded files (as data URLs)
+  const state = {};
+  MONTHS.forEach((_,mi) => { state[mi] = { statuses:{}, files:{} }; });
+
+  let currentMonth = 0;
+
+  function getKey(deptId, ri) { return deptId + '_' + ri; }
+  function getStatus(mi, deptId, ri) { return state[mi].statuses[getKey(deptId,ri)] || 'pending'; }
+  function getFile(mi, deptId, ri)   { return state[mi].files[getKey(deptId,ri)] || null; }
+
+  function cycleStatus(mi, deptId, ri) {
+    const cur = getStatus(mi, deptId, ri);
+    const next = STATUSES[(STATUSES.indexOf(cur)+1) % STATUSES.length];
+    state[mi].statuses[getKey(deptId,ri)] = next;
+    render();
+  }
+
+  function triggerUpload(mi, deptId, ri) {
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'application/pdf,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx';
+    inp.onchange = () => {
+      const file = inp.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        state[mi].files[getKey(deptId,ri)] = { name: file.name, data: e.target.result };
+        // auto-mark as submitted if pending/in-progress
+        const cur = getStatus(mi, deptId, ri);
+        if(cur === 'pending' || cur === 'progress') {
+          state[mi].statuses[getKey(deptId,ri)] = 'submitted';
+        }
+        render();
+      };
+      reader.readAsDataURL(file);
+    };
+    inp.click();
+  }
+
+  function downloadFile(mi, deptId, ri) {
+    const f = getFile(mi, deptId, ri);
+    if(!f) return;
+    const a = document.createElement('a');
+    a.href = f.data; a.download = f.name; a.click();
+  }
+
+  function getMeetingDate(mi) { return `10 ${MONTHS[mi]} 2026`; }
+
+  function getDeptStats(mi, dept) {
+    const total = dept.reports.length;
+    const submitted = dept.reports.filter((_,ri) => {
+      const s = getStatus(mi, dept.id, ri);
+      return s === 'submitted' || s === 'reviewed';
+    }).length;
+    const reviewed = dept.reports.filter((_,ri) => getStatus(mi,dept.id,ri)==='reviewed').length;
+    const filed = dept.reports.filter((_,ri) => !!getFile(mi,dept.id,ri)).length;
+    return {total, submitted, reviewed, filed};
+  }
+
+  function buildSummary(mi) {
+    let totalR=0, totalS=0, totalRev=0, totalFiled=0;
+    DEPTS.forEach(d => {
+      const st = getDeptStats(mi, d);
+      totalR += st.total; totalS += st.submitted; totalRev += st.reviewed; totalFiled += st.filed;
+    });
+    const pct = Math.round(totalS/totalR*100);
+    document.getElementById('vault-summary').innerHTML = `
+      <div style="font-size:12px;color:var(--label-secondary);"><span style="font-weight:600;color:var(--label-primary);">${totalS}/${totalR}</span> submitted</div>
+      <div style="width:80px;height:6px;background:var(--bg-inset);border-radius:3px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:var(--green);border-radius:3px;transition:width 0.3s;"></div></div>
+      <div style="font-size:12px;color:var(--label-secondary);"><span style="font-weight:600;color:var(--accent);">${totalRev}</span> reviewed</div>
+      <div style="font-size:12px;color:var(--label-secondary);"><span style="font-weight:600;color:var(--teal);">${totalFiled}</span> PDFs uploaded</div>`;
+  }
+
+  function buildVaultContent(mi) {
+    const container = document.getElementById('vault-content');
+    container.innerHTML = '';
+    const dateLabel = getMeetingDate(mi);
+
+    DEPTS.forEach(dept => {
+      const stats = getDeptStats(mi, dept);
+      const pct = Math.round(stats.submitted/stats.total*100);
+      const colorVar = `var(--${dept.color})`;
+
+      const block = document.createElement('div');
+      block.className = 'vault-dept';
+
+      const rows = dept.reports.map((rname, ri) => {
+        const s  = getStatus(mi, dept.id, ri);
+        const f  = getFile(mi, dept.id, ri);
+        const hasFile = !!f;
+
+        const fileZone = hasFile
+          ? `<div class="vault-file-zone has-file" onclick="vaultUpload(${mi},'${dept.id}',${ri})" title="Replace file">
+              <span class="vault-file-icon">📄</span>
+              <span class="vault-file-label" style="max-width:100px;overflow:hidden;text-overflow:ellipsis;">${f.name}</span>
+            </div>
+            <button class="vault-dl-btn" onclick="vaultDownload(${mi},'${dept.id}',${ri})" title="Download">
+              ↓ Download
+            </button>`
+          : `<div class="vault-file-zone" onclick="vaultUpload(${mi},'${dept.id}',${ri})" title="Upload report PDF">
+              <span class="vault-file-icon">📎</span>
+              <span class="vault-file-label">Upload PDF</span>
+            </div>`;
+
+        return `<div class="vault-report-row">
+          <div class="vault-rnum">${String(ri+1).padStart(2,'0')}</div>
+          <div class="vault-rname">${rname}</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">${fileZone}</div>
+          <button class="vault-status-btn vs-${s}" onclick="vaultCycle('${dept.id}',${ri},${mi})">
+            <span class="vs-dot"></span>${STATUS_LABELS[s]}
+          </button>
+        </div>`;
+      }).join('');
+
+      block.innerHTML = `
+        <div class="vault-dept-hdr">
+          <div class="avatar ${dept.avCls}" style="width:34px;height:34px;font-size:12px;flex-shrink:0;">${dept.initials}</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;letter-spacing:-0.2px;color:var(--label-primary);">${dept.name}</div>
+            <div style="font-size:11px;color:var(--label-secondary);margin-top:2px;">${dept.reports.length} reports · ${stats.submitted} submitted · ${stats.reviewed} reviewed · ${stats.filed} PDFs uploaded</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            <div style="font-size:11px;font-weight:600;color:${colorVar};">${pct}%</div>
+            <div class="vault-progress-bar"><div class="vault-progress-fill" style="width:${pct}%;background:${colorVar};"></div></div>
+          </div>
+        </div>
+        <div style="background:var(--bg-inset);padding:7px 20px;border-bottom:0.5px solid var(--separator);display:flex;gap:20px;">
+          <span style="font-size:10px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--label-tertiary);">Due ${dateLabel}</span>
+          <span style="font-size:10px;color:var(--label-quaternary);">Click status to cycle · Click upload icon to attach PDF · Click download to retrieve</span>
+        </div>
+        ${rows}`;
+      container.appendChild(block);
+    });
+
+    buildSummary(mi);
+  }
+
+  // expose globals
+  window.vaultCycle    = (deptId, ri, mi) => { cycleStatus(mi, deptId, ri); };
+  window.vaultUpload   = (mi, deptId, ri) => { triggerUpload(mi, deptId, ri); };
+  window.vaultDownload = (mi, deptId, ri) => { downloadFile(mi, deptId, ri); };
+
+  // Expose inject function for Ops Form
+  window.vaultInjectOpsReport = function(monthIdx, reportName, fileObj) {
+    const amir = DEPTS.find(d => d.id === 'amir');
+    const ri = amir.reports.indexOf(reportName);
+    if(ri === -1) return;
+    state[monthIdx].statuses[getKey('amir', ri)] = 'submitted';
+    if(fileObj) state[monthIdx].files[getKey('amir', ri)] = fileObj;
+    render();
+  };
+
+  // Expose bulk inject for all Ops reports
+  window.vaultInjectAllOps = function(monthIdx, summaryBlob) {
+    const amir = DEPTS.find(d => d.id === 'amir');
+    amir.reports.forEach((_,ri) => {
+      state[monthIdx].statuses[getKey('amir', ri)] = 'submitted';
+      state[monthIdx].files[getKey('amir', ri)] = summaryBlob;
+    });
+    // Switch vault to that month
+    currentMonth = MONTHS.indexOf(['June','July','August','September','October','November','December'][monthIdx % 7]);
+    if(currentMonth === -1) currentMonth = monthIdx;
+    render();
+  };
+
+  function render() {
+    buildVaultContent(currentMonth);
+    // Update tab nav
+    const tabs = document.getElementById('vault-month-tabs');
+    if(tabs) {
+      tabs.querySelectorAll('.vmt-btn').forEach((btn,i) => {
+        btn.classList.toggle('active', i === currentMonth);
+        // Update badge
+        const amir = DEPTS.find(d=>d.id==='amir');
+        const filed = amir.reports.filter((_,ri)=>!!getFile(i,amir.id,ri)).length;
+        const submitted = amir.reports.filter((_,ri)=>{ const s=getStatus(i,amir.id,ri); return s==='submitted'||s==='reviewed'; }).length;
+        const badge = btn.querySelector('.vmt-badge');
+        if(badge) {
+          const total = DEPTS.reduce((s,d)=>s+d.reports.length,0);
+          const totalSub = DEPTS.reduce((s,d)=>s+d.reports.filter((_,ri)=>{ const st=getStatus(i,d.id,ri); return st==='submitted'||st==='reviewed'; }).length, 0);
+          badge.textContent = `${totalSub}/${total}`;
+          badge.style.display = totalSub > 0 ? 'inline-block' : 'none';
+        }
+      });
+    }
+  }
+
+  // Build month tab nav
+  const tabsEl = document.getElementById('vault-month-tabs');
+  const MONTHS_LIST = ['June','July','August','September','October','November','December'];
+  if(tabsEl) {
+    MONTHS_LIST.forEach((m,i) => {
+      const btn = document.createElement('button');
+      btn.className = 'vmt-btn' + (i===0?' active':'');
+      btn.innerHTML = `${m} 2026 <span class="vmt-badge" style="display:none">0/43</span>`;
+      btn.onclick = () => { currentMonth = i; render(); };
+      tabsEl.appendChild(btn);
+    });
+  }
+
+  // Also build the old pill selector (kept for ops form select sync)
+  const sel = document.getElementById('month-selector');
+  if(sel) {
+    MONTHS_LIST.forEach((m,i) => {
+      const btn = document.createElement('button');
+      btn.className = 'vmonth-btn' + (i===0?' active':'');
+      btn.textContent = m;
+      btn.onclick = () => { currentMonth = i; render(); };
+      sel.appendChild(btn);
+    });
+  }
+
+  render();
+})();
+
+// ── OPS REPORT FORM JS ──────────────────────────
+(function initOpsForm() {
+  const REQUIRED_IDS = ['f_review_overall','f_hk_turnovers','f_maint_raised','f_comp_total','f_unit_flagged','f_hr_hk','f_sop_checked','f_cost_hk'];
+  const MONTH_NAMES  = ['June','July','August','September','October','November','December'];
+  const OPS_REPORTS  = ['Guest Review Score Summary','Housekeeping Performance','Maintenance Work Order Report','Complaint & Incident Log','Vendor & Supplier Performance','Unit Condition Report','Team Headcount & HR Update','SOP Compliance Audit','Operational Cost Summary','Next Month Ops Readiness'];
+  const TOTAL_TRACKABLE = document.querySelectorAll('.ops-trackable').length;
+
+  function updateProgress() {
+    const filled = [...document.querySelectorAll('.ops-trackable')].filter(el => el.value && el.value.trim() !== '').length;
+    const pct = Math.round(filled / TOTAL_TRACKABLE * 100);
+    ['ops-prog-fill','ops-prog-fill2'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.style.width = pct + '%';
+    });
+    ['ops-prog-pct','ops-prog-pct2'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.textContent = pct + '%';
+    });
+    const reqFilled = REQUIRED_IDS.every(id => {
+      const el = document.getElementById(id);
+      return el && el.value && el.value.trim() !== '';
+    });
+    const btn = document.getElementById('ops-submit-btn');
+    const msg = document.getElementById('ops-required-msg');
+    if(btn) btn.disabled = !reqFilled;
+    if(msg) msg.textContent = reqFilled ? '✓ Required fields complete' : 'Fill required fields (*) to submit';
+  }
+
+  // Attach listeners to all trackable inputs
+  document.querySelectorAll('.ops-trackable').forEach(el => {
+    el.addEventListener('input', updateProgress);
+    el.addEventListener('change', updateProgress);
+  });
+
+  // Auto-calc total ops cost
+  ['f_cost_hk','f_cost_maint','f_cost_cs'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', () => {
+      const hk   = parseFloat(document.getElementById('f_cost_hk')?.value)   || 0;
+      const mnt  = parseFloat(document.getElementById('f_cost_maint')?.value) || 0;
+      const cs   = parseFloat(document.getElementById('f_cost_cs')?.value)    || 0;
+      const tot  = document.getElementById('f_cost_total');
+      if(tot && !tot._manuallyEdited) tot.value = hk + mnt + cs || '';
+    });
+  });
+  const totEl = document.getElementById('f_cost_total');
+  if(totEl) totEl.addEventListener('input', () => { totEl._manuallyEdited = true; });
+
+  // Global rating handler
+  window.setRating = function(groupId, value, cls, btn) {
+    const group = document.getElementById(groupId);
+    if(!group) return;
+    group.querySelectorAll('.ops-rating-btn').forEach(b => b.className = 'ops-rating-btn');
+    btn.classList.add(cls);
+    // store in hidden input (field id = 'f_' + last part of groupId after last '-')
+    const parts = groupId.split('-');
+    const hiddenId = 'f_' + parts.slice(0,-1).join('_');
+    const hidden = document.getElementById(hiddenId);
+    if(hidden) { hidden.value = value; updateProgress(); }
+  };
+
+  // Submit handler
+  window.opsSubmit = function() {
+    const monthSel = document.getElementById('ops-month-select');
+    const monthIdx = parseInt(monthSel.value) - 5; // 5=June→0, 6=July→1, etc.
+    const monthName = MONTH_NAMES[monthIdx];
+
+    // Build a text summary blob
+    const lines = [
+      `DADR Digital — Operations Report`,
+      `Month: ${monthName} 2026`,
+      `Submitted: ${new Date().toLocaleString('en-MY')}`,
+      `Submitted by: Amir (HOD Operations)`,
+      `─────────────────────────────────────────`,
+      ``,
+      `1. GUEST REVIEW SCORE SUMMARY`,
+      `Overall Rating: ${document.getElementById('f_review_overall')?.value || '-'} / 5.0`,
+      `Trend: ${document.getElementById('f_review_trend')?.value || '-'}`,
+      `Airbnb: ${document.getElementById('f_review_airbnb')?.value || '-'} | Booking.com: ${document.getElementById('f_review_bdc')?.value || '-'} | Agoda: ${document.getElementById('f_review_agoda')?.value || '-'}`,
+      `Declining Units: ${document.getElementById('f_review_declining')?.value || 'None'}`,
+      ``,
+      `2. HOUSEKEEPING PERFORMANCE`,
+      `Turnovers: ${document.getElementById('f_hk_turnovers')?.value || '-'} | Avg Time: ${document.getElementById('f_hk_time')?.value || '-'} mins | Missed: ${document.getElementById('f_hk_missed')?.value || '-'}`,
+      `Status: ${document.getElementById('f_hk_status')?.value || '-'}`,
+      `Notes: ${document.getElementById('f_hk_notes')?.value || '-'}`,
+      ``,
+      `3. MAINTENANCE WORK ORDERS`,
+      `Raised: ${document.getElementById('f_maint_raised')?.value || '-'} | Resolved: ${document.getElementById('f_maint_resolved')?.value || '-'} | Pending: ${document.getElementById('f_maint_pending')?.value || '-'} | Overdue: ${document.getElementById('f_maint_overdue')?.value || '-'}`,
+      `Avg Resolution: ${document.getElementById('f_maint_avg_days')?.value || '-'} days`,
+      `Recurring Issues: ${document.getElementById('f_maint_recurring')?.value || '-'}`,
+      ``,
+      `4. COMPLAINT & INCIDENT LOG`,
+      `Total: ${document.getElementById('f_comp_total')?.value || '-'} | Resolved: ${document.getElementById('f_comp_resolved')?.value || '-'} | Avg Resolution: ${document.getElementById('f_comp_time')?.value || '-'} hrs`,
+      `Summary: ${document.getElementById('f_comp_summary')?.value || '-'}`,
+      `Escalations: ${document.getElementById('f_comp_escalations')?.value || 'None'}`,
+      ``,
+      `5. VENDOR & SUPPLIER`,
+      `Cleaning Vendor: ${document.getElementById('f_vendor_clean')?.value || '-'} | Maintenance Vendor: ${document.getElementById('f_vendor_maint')?.value || '-'}`,
+      `Notes: ${document.getElementById('f_vendor_notes')?.value || '-'}`,
+      ``,
+      `6. UNIT CONDITION`,
+      `Flagged Units: ${document.getElementById('f_unit_flagged')?.value || '-'} | Est Cost: RM ${document.getElementById('f_unit_cost')?.value || '-'}`,
+      `Details: ${document.getElementById('f_unit_list')?.value || '-'}`,
+      ``,
+      `7. TEAM HEADCOUNT & HR`,
+      `Housekeeping: ${document.getElementById('f_hr_hk')?.value || '-'} | Maintenance: ${document.getElementById('f_hr_maint')?.value || '-'} | CS: ${document.getElementById('f_hr_cs')?.value || '-'}`,
+      `Vacancies: ${document.getElementById('f_hr_vacancies')?.value || '-'} | Training: ${document.getElementById('f_hr_training')?.value || '-'}`,
+      `Notes: ${document.getElementById('f_hr_notes')?.value || '-'}`,
+      ``,
+      `8. SOP COMPLIANCE AUDIT`,
+      `Checked: ${document.getElementById('f_sop_checked')?.value || '-'} units | Score: ${document.getElementById('f_sop_score')?.value || '-'}%`,
+      `Gaps: ${document.getElementById('f_sop_gaps')?.value || '-'}`,
+      ``,
+      `9. OPERATIONAL COST SUMMARY`,
+      `HK: RM ${document.getElementById('f_cost_hk')?.value || '-'} | Maint: RM ${document.getElementById('f_cost_maint')?.value || '-'} | CS: RM ${document.getElementById('f_cost_cs')?.value || '-'} | Total: RM ${document.getElementById('f_cost_total')?.value || '-'}`,
+      `vs Budget: ${document.getElementById('f_cost_vs_budget')?.value || '-'}`,
+      `Variance: ${document.getElementById('f_cost_variance')?.value || '-'}`,
+      ``,
+      `10. NEXT MONTH READINESS`,
+      `High-Occupancy Periods: ${document.getElementById('f_next_high_occ')?.value || '-'}`,
+      `Planned Shutdowns: ${document.getElementById('f_next_shutdowns')?.value || '-'}`,
+      `New Units: ${document.getElementById('f_next_onboard')?.value || '-'}`,
+      `Readiness: ${document.getElementById('f_next_readiness')?.value || '-'}`,
+      `CEO Notes: ${document.getElementById('f_next_notes')?.value || '-'}`,
+    ];
+
+    const content = lines.join('\n');
+    const blob = { name: `Ops_Report_${monthName}_2026.txt`, data: 'data:text/plain;base64,' + btoa(unescape(encodeURIComponent(content))) };
+
+    // Inject into vault
+    if(window.vaultInjectAllOps) window.vaultInjectAllOps(monthIdx, blob);
+
+    // Show success
+    const banner = document.getElementById('ops-success-banner');
+    const detail = document.getElementById('ops-success-detail');
+    if(banner) banner.classList.add('show');
+    if(detail) detail.textContent = `10 Operations reports for ${monthName} 2026 are now in the Reports Vault.`;
+
+    // Scroll to top of form
+    document.getElementById('tab-opsform')?.scrollIntoView({behavior:'smooth'});
+  };
+
+  window.opsReset = function() {
+    document.querySelectorAll('.ops-trackable').forEach(el => { el.value = ''; el._manuallyEdited = false; });
+    document.querySelectorAll('.ops-rating-btn').forEach(btn => { btn.className = 'ops-rating-btn'; });
+    document.querySelectorAll('input[type=hidden]').forEach(el => { el.value = ''; });
+    document.getElementById('ops-success-banner')?.classList.remove('show');
+    updateProgress();
+  };
+
+  updateProgress();
+})();
+
+// ── MAINTENANCE DASHBOARD JS ──────────────────
+(function initMaint() {
+
+  // ── helpers ──────────────────────────────────
+  function daysAgo(n) {
+    const d = new Date(); d.setDate(d.getDate() - n);
+    return d.toISOString().slice(0,10);
+  }
+  function today() { return new Date().toISOString().slice(0,10); }
+
+  // ── seed data (30 days of realistic history) ─
+  let jobs = [
+    // older resolved jobs (30–11 days ago)
+    { id:1,  unit:'A12',    cat:'Plumbing',      issue:'Water leak under kitchen sink',          pri:'Urgent', crew:'Crew 1', status:'Resolved', date:daysAgo(28), resolvedDate:daysAgo(27), reporter:'Erin',   responses:[{by:'Crew 1',  time:daysAgo(27)+'T09:30', note:'Replaced elbow joint, tightened connections. Parts: elbow pipe x1, sealer. Time: 1.5 hrs.', status:'Resolved'}] },
+    { id:2,  unit:'B07',    cat:'Air-Con',        issue:'Air-con not cooling',                    pri:'High',   crew:'Crew 2', status:'Resolved', date:daysAgo(26), resolvedDate:daysAgo(25), reporter:'Sayed',  responses:[{by:'Crew 2',  time:daysAgo(26)+'T14:00', note:'Topped up refrigerant gas, cleaned filter. Time: 2 hrs.'}, {by:'Crew 2', time:daysAgo(25)+'T10:00', note:'Re-tested — cooling normal. Resolved.', status:'Resolved'}] },
+    { id:3,  unit:'C04',    cat:'Electrical',     issue:'Trip switch keeps tripping',             pri:'Urgent', crew:'Crew 3', status:'Resolved', date:daysAgo(24), resolvedDate:daysAgo(23), reporter:'Rasel',  responses:[{by:'Crew 3',  time:daysAgo(23)+'T11:00', note:'Found faulty iron left plugged in. Removed. Circuit normal. Time: 45 min.', status:'Resolved'}] },
+    { id:4,  unit:'D11',    cat:'Appliance',      issue:'Washing machine door latch broken',      pri:'Normal', crew:'Crew 1', status:'Resolved', date:daysAgo(22), resolvedDate:daysAgo(21), reporter:'Rasel',  responses:[{by:'Crew 1',  time:daysAgo(21)+'T15:00', note:'Replaced door latch mechanism. Parts: latch kit RM 45. Time: 1 hr.', status:'Resolved'}] },
+    { id:5,  unit:'Villa 1',cat:'Structural',     issue:'Ceiling paint peeling in bedroom',       pri:'Low',    crew:'Crew 2', status:'Resolved', date:daysAgo(20), resolvedDate:daysAgo(18), reporter:'Naqib',  responses:[{by:'Crew 2',  time:daysAgo(19)+'T09:00', note:'Sanded, primed, repainted affected area. Paint RM 80. Time: 3 hrs.', status:'Resolved'}] },
+    { id:6,  unit:'A03',    cat:'Plumbing',       issue:'Toilet flush weak — not flushing fully', pri:'Normal', crew:'Crew 4', status:'Resolved', date:daysAgo(18), resolvedDate:daysAgo(17), reporter:'Erin',   responses:[{by:'Crew 4',  time:daysAgo(17)+'T10:30', note:'Replaced flush valve. Parts: flush valve RM 30. Time: 40 min.', status:'Resolved'}] },
+    { id:7,  unit:'B14',    cat:'Furniture',      issue:'Bed frame cracked — guest reported',     pri:'High',   crew:'Crew 3', status:'Resolved', date:daysAgo(16), resolvedDate:daysAgo(15), reporter:'Sayed',  responses:[{by:'Crew 3',  time:daysAgo(15)+'T08:00', note:'Replaced bed frame slats, reinforced. Parts: RM 120. Time: 1.5 hrs.', status:'Resolved'}] },
+    { id:8,  unit:'Villa 3',cat:'Pool',           issue:'Pool pump making loud noise',            pri:'High',   crew:'Naqib', status:'Resolved', date:daysAgo(14), resolvedDate:daysAgo(13), reporter:'Hannah', responses:[{by:'Naqib',   time:daysAgo(14)+'T13:00', note:'Checked pump — bearing worn. Ordered part.'}, {by:'Naqib', time:daysAgo(13)+'T09:00', note:'Replaced bearing. Pump running quiet. Parts: RM 280. Time: 2.5 hrs.', status:'Resolved'}] },
+    { id:9,  unit:'C08',    cat:'Air-Con',        issue:'Remote control not working',             pri:'Low',    crew:'Crew 1', status:'Resolved', date:daysAgo(12), resolvedDate:daysAgo(12), reporter:'Erin',   responses:[{by:'Crew 1',  time:daysAgo(12)+'T10:00', note:'Replaced batteries. Tested — working. Time: 10 min.', status:'Resolved'}] },
+    { id:10, unit:'A19',    cat:'Electrical',     issue:'Power socket sparking',                  pri:'Urgent', crew:'Crew 3', status:'Resolved', date:daysAgo(11), resolvedDate:daysAgo(10), reporter:'Rasel',  responses:[{by:'Crew 3',  time:daysAgo(11)+'T09:00', note:'Isolated circuit. Found loose wiring. Rewired socket. Parts: RM 15. Time: 1 hr.', status:'Resolved'}] },
+    // recent jobs (last 10 days — mix of statuses)
+    { id:11, unit:'B03',    cat:'Furniture',      issue:'Sofa leg broken',                        pri:'Normal', crew:'Crew 4', status:'Resolved', date:daysAgo(9),  resolvedDate:daysAgo(8),  reporter:'Erin',   responses:[{by:'Crew 4',  time:daysAgo(8)+'T11:00', note:'Replaced sofa leg, screwed and reinforced. Time: 30 min.', status:'Resolved'}] },
+    { id:12, unit:'D05',    cat:'Plumbing',       issue:'Shower head low pressure',               pri:'Normal', crew:'Crew 2', status:'Resolved', date:daysAgo(8),  resolvedDate:daysAgo(7),  reporter:'Sayed',  responses:[{by:'Crew 2',  time:daysAgo(7)+'T14:00', note:'Descaled shower head, replaced washer. Time: 45 min.', status:'Resolved'}] },
+    { id:13, unit:'Villa 2',cat:'Pool',           issue:'Pool water cloudy — guests complained',  pri:'High',   crew:'Naqib', status:'Resolved', date:daysAgo(7),  resolvedDate:daysAgo(6),  reporter:'Hannah', responses:[{by:'Naqib',   time:daysAgo(7)+'T08:00', note:'Shocked pool, adjusted pH & chlorine. Chemicals: RM 60. Time: 1 hr.'}, {by:'Naqib', time:daysAgo(6)+'T08:00', note:'Water clear. Resolved.', status:'Resolved'}] },
+    { id:14, unit:'A08',    cat:'Housekeeping',   issue:'Damaged linen — 2 pillow cases torn',    pri:'Normal', crew:'Crew 4', status:'Resolved', date:daysAgo(6),  resolvedDate:daysAgo(5),  reporter:'Erin',   responses:[{by:'Crew 4',  time:daysAgo(5)+'T10:00', note:'Replaced with new linen set. Disposed torn items. Time: 20 min.', status:'Resolved'}] },
+    { id:15, unit:'C11',    cat:'Air-Con',        issue:'Water dripping from indoor unit',        pri:'High',   crew:'Crew 2', status:'Resolved', date:daysAgo(5),  resolvedDate:daysAgo(4),  reporter:'Rasel',  responses:[{by:'Crew 2',  time:daysAgo(5)+'T13:00', note:'Cleared blocked condensate drain. Cleaned drain pan. Time: 1.5 hrs.', status:'Resolved'}] },
+    { id:16, unit:'B09',    cat:'Electrical',     issue:'Bedroom light flickering',               pri:'Normal', crew:'Crew 1', status:'In Progress', date:daysAgo(4), resolvedDate:null,        reporter:'Erin',   responses:[{by:'Crew 1',  time:daysAgo(4)+'T15:00', note:'Checked — loose fitting. Need to order compatible LED. Parts arriving tomorrow.'}] },
+    { id:17, unit:'Villa 4',cat:'Structural',     issue:'Window frame warped, cannot close fully',pri:'High',   crew:'Naqib', status:'In Progress', date:daysAgo(3), resolvedDate:null,        reporter:'Hannah', responses:[{by:'Naqib',   time:daysAgo(3)+'T09:00', note:'Assessed — frame needs planing + resealing. Scheduled for tomorrow.'}] },
+    { id:18, unit:'A12',    cat:'Plumbing',       issue:'Kitchen tap dripping constantly',        pri:'Normal', crew:'Crew 3', status:'In Progress', date:daysAgo(2), resolvedDate:null,        reporter:'Erin',   responses:[{by:'Crew 3',  time:daysAgo(2)+'T11:00', note:'Turned off water supply. Awaiting replacement ceramic cartridge — ordered.'}] },
+    { id:19, unit:'D02',    cat:'Appliance',      issue:'Microwave not heating',                  pri:'Normal', crew:'Unassigned', status:'Open', date:daysAgo(2), resolvedDate:null,          reporter:'Sayed',  responses:[] },
+    { id:20, unit:'C04',    cat:'Electrical',     issue:'Smart lock battery low — guest locked out', pri:'Urgent', crew:'Crew 1', status:'Open', date:daysAgo(1), resolvedDate:null,           reporter:'Rasel',  responses:[] },
+    { id:21, unit:'Villa 3',cat:'Housekeeping',   issue:'Stain on sofa — check-out report',      pri:'Normal', crew:'Unassigned', status:'Open', date:daysAgo(1), resolvedDate:null,           reporter:'Hannah', responses:[] },
+    { id:22, unit:'B16',    cat:'Air-Con',        issue:'Air-con leaking water onto floor',       pri:'High',   crew:'Crew 2', status:'Open', date:today(), resolvedDate:null,                reporter:'Erin',   responses:[] },
+    { id:23, unit:'A07',    cat:'Plumbing',       issue:'Bathroom flooding — pipe burst',         pri:'Urgent', crew:'Crew 3', status:'Open', date:today(), resolvedDate:null,                 reporter:'Sayed',  responses:[] },
+  ];
+  let nextId = 24;
+  let filterStatus='All', filterPri='All', filterCat='All', filterCrew='All', searchQ='';
+  let activeView = 'board'; // 'board' | 'analytics'
+
+  // ── utility ──────────────────────────────────
+  function priClass(p) { return {Urgent:'pri-urgent',High:'pri-high',Normal:'pri-normal',Low:'pri-low'}[p]||'pri-normal'; }
+  function statusColor(s) { return {Open:'var(--red)','In Progress':'var(--amber)',Resolved:'var(--green)'}[s]||'var(--label-tertiary)'; }
+  function statusBg(s)    { return {Open:'var(--red-soft)','In Progress':'var(--amber-soft)',Resolved:'var(--green-soft)'}[s]||'var(--bg-inset)'; }
+  function daysBetween(a,b) { return Math.round((new Date(b)-new Date(a))/(1000*60*60*24)); }
+
+  function filteredJobs() {
+    return jobs.filter(j => {
+      if(filterStatus!=='All' && j.status!==filterStatus) return false;
+      if(filterPri!=='All'    && j.pri!==filterPri)       return false;
+      if(filterCat!=='All'    && j.cat!==filterCat)       return false;
+      if(filterCrew!=='All'   && j.crew!==filterCrew)     return false;
+      if(searchQ && !`${j.unit} ${j.issue} ${j.reporter}`.toLowerCase().includes(searchQ.toLowerCase())) return false;
+      return true;
+    });
+  }
+
+  // ── RENDER BOARD ─────────────────────────────
+  function renderBoard() {
+    const all      = filteredJobs();
+    const openJ    = all.filter(j=>j.status==='Open');
+    const inProgJ  = all.filter(j=>j.status==='In Progress');
+    const resolvedJ= all.filter(j=>j.status==='Resolved');
+
+    // Stats
+    const urgentOpen = jobs.filter(j=>j.pri==='Urgent'&&j.status!=='Resolved').length;
+    const resolvedToday = jobs.filter(j=>j.resolvedDate===today()).length;
+    const avgRes = (() => {
+      const r = jobs.filter(j=>j.resolvedDate); if(!r.length) return '-';
+      const avg = r.reduce((s,j)=>s+daysBetween(j.date,j.resolvedDate),0)/r.length;
+      return avg.toFixed(1)+'d';
+    })();
+
+    const statsEl = document.getElementById('maint-stats');
+    if(statsEl) statsEl.innerHTML = `
+      <div class="maint-stat"><span class="maint-stat-num">${jobs.length}</span><div class="maint-stat-lbl">Total (30d)</div></div>
+      <div class="maint-stat"><span class="maint-stat-num" style="color:var(--red);">${jobs.filter(j=>j.status==='Open').length}</span><div class="maint-stat-lbl">Open</div></div>
+      <div class="maint-stat"><span class="maint-stat-num" style="color:var(--amber);">${jobs.filter(j=>j.status==='In Progress').length}</span><div class="maint-stat-lbl">In Progress</div></div>
+      <div class="maint-stat"><span class="maint-stat-num" style="color:var(--green);">${jobs.filter(j=>j.status==='Resolved').length}</span><div class="maint-stat-lbl">Resolved</div></div>
+      <div class="maint-stat"><span class="maint-stat-num" style="color:var(--red);">${urgentOpen}</span><div class="maint-stat-lbl">Urgent Open</div></div>
+      <div class="maint-stat"><span class="maint-stat-num" style="color:var(--green);">${resolvedToday}</span><div class="maint-stat-lbl">Done Today</div></div>
+      <div class="maint-stat"><span class="maint-stat-num" style="color:var(--accent);">${avgRes}</span><div class="maint-stat-lbl">Avg Resolution</div></div>`;
+
+    function jobCard(j) {
+      const resCount = j.responses?.length||0;
+      return `<div class="job-card" onclick="maintOpenDetail(${j.id})">
+        <div class="job-card-top">
+          <span class="job-unit">${j.unit}</span>
+          <span class="job-pri ${priClass(j.pri)}">${j.pri}</span>
+        </div>
+        <div class="job-issue">${j.issue}</div>
+        <div class="job-meta" style="margin-top:6px;">
+          <span class="job-meta-chip">📂 ${j.cat}</span>
+          <span class="job-meta-chip">👷 ${j.crew}</span>
+          <span class="job-meta-chip">📅 ${j.date}</span>
+          ${resCount ? `<span class="job-meta-chip" style="color:var(--accent);">💬 ${resCount}</span>` : ''}
+        </div>
+      </div>`;
+    }
+
+    const board = document.getElementById('maint-board');
+    if(board) board.innerHTML = `
+      <div class="job-col">
+        <div class="job-col-hdr"><span class="job-col-title" style="color:var(--red);">🔴 Open</span><span class="job-count-badge" style="background:var(--red-soft);color:var(--red);">${openJ.length}</span></div>
+        <div class="job-list">${openJ.length?openJ.map(jobCard).join(''):'<div style="padding:16px;font-size:12px;color:var(--label-quaternary);text-align:center;">No open jobs</div>'}</div>
+      </div>
+      <div class="job-col">
+        <div class="job-col-hdr"><span class="job-col-title" style="color:var(--amber);">🟡 In Progress</span><span class="job-count-badge" style="background:var(--amber-soft);color:var(--amber);">${inProgJ.length}</span></div>
+        <div class="job-list">${inProgJ.length?inProgJ.map(jobCard).join(''):'<div style="padding:16px;font-size:12px;color:var(--label-quaternary);text-align:center;">Nothing in progress</div>'}</div>
+      </div>
+      <div class="job-col">
+        <div class="job-col-hdr"><span class="job-col-title" style="color:var(--green);">✅ Resolved</span><span class="job-count-badge" style="background:var(--green-soft);color:var(--green);">${resolvedJ.length}</span></div>
+        <div class="job-list">${resolvedJ.length?resolvedJ.map(jobCard).join(''):'<div style="padding:16px;font-size:12px;color:var(--label-quaternary);text-align:center;">Nothing resolved yet</div>'}</div>
+      </div>`;
+  }
+
+  // ── RENDER ANALYTICS ─────────────────────────
+  function renderAnalytics() {
+    const el = document.getElementById('maint-analytics');
+    if(!el) return;
+
+    // Last 30 days by date
+    const dateMap = {};
+    for(let i=29;i>=0;i--) { dateMap[daysAgo(i)] = {open:0,resolved:0,inprog:0}; }
+    jobs.forEach(j => {
+      if(dateMap[j.date])          dateMap[j.date].open++;
+      if(j.resolvedDate && dateMap[j.resolvedDate]) dateMap[j.resolvedDate].resolved++;
+    });
+    const dates  = Object.keys(dateMap);
+    const last10 = dates.slice(-10);
+
+    // Category breakdown
+    const catCount = {};
+    jobs.forEach(j => { catCount[j.cat]=(catCount[j.cat]||0)+1; });
+    const sortedCats = Object.entries(catCount).sort((a,b)=>b[1]-a[1]);
+    const maxCat = sortedCats[0]?.[1]||1;
+
+    // Crew resolved count
+    const crewRes = {};
+    jobs.filter(j=>j.status==='Resolved').forEach(j=>{ crewRes[j.crew]=(crewRes[j.crew]||0)+1; });
+    const sortedCrew = Object.entries(crewRes).sort((a,b)=>b[1]-a[1]);
+    const maxCrew = sortedCrew[0]?.[1]||1;
+
+    // Resolution rate %
+    const resRate = Math.round(jobs.filter(j=>j.status==='Resolved').length/jobs.length*100);
+
+    // Avg resolution time by crew
+    const crewAvg = {};
+    const crewCnt = {};
+    jobs.filter(j=>j.resolvedDate).forEach(j=>{
+      crewAvg[j.crew]=(crewAvg[j.crew]||0)+daysBetween(j.date,j.resolvedDate);
+      crewCnt[j.crew]=(crewCnt[j.crew]||0)+1;
+    });
+
+    // Max bar value for chart
+    const maxBar = Math.max(...last10.map(d=>dateMap[d].open+dateMap[d].resolved),1);
+
+    el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+
+      <!-- 10-day bar chart -->
+      <div style="background:var(--bg-card);border:0.5px solid var(--separator);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:18px 20px;grid-column:span 2;">
+        <div style="font-size:12px;font-weight:600;color:var(--label-primary);margin-bottom:4px;">Last 10 Days — Jobs Raised vs Resolved</div>
+        <div style="font-size:10px;color:var(--label-tertiary);margin-bottom:14px;">Preview of the last 10 days. Full 30-day log visible in the table below.</div>
+        <div style="display:flex;align-items:flex-end;gap:6px;height:100px;">
+          ${last10.map(d=>{
+            const raisedH = Math.round((dateMap[d].open/maxBar)*90);
+            const resH    = Math.round((dateMap[d].resolved/maxBar)*90);
+            const label   = d.slice(5); // MM-DD
+            return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">
+              <div style="display:flex;align-items:flex-end;gap:2px;width:100%;">
+                <div style="flex:1;background:var(--red-soft);border-radius:3px 3px 0 0;height:${raisedH}px;border:0.5px solid var(--red);min-height:${dateMap[d].open?4:0}px;" title="Raised: ${dateMap[d].open}"></div>
+                <div style="flex:1;background:var(--green-soft);border-radius:3px 3px 0 0;height:${resH}px;border:0.5px solid var(--green);min-height:${dateMap[d].resolved?4:0}px;" title="Resolved: ${dateMap[d].resolved}"></div>
+              </div>
+              <div style="font-size:8px;color:var(--label-quaternary);white-space:nowrap;">${label}</div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="display:flex;gap:16px;margin-top:8px;">
+          <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--label-secondary);"><div style="width:10px;height:10px;background:var(--red-soft);border:0.5px solid var(--red);border-radius:2px;"></div>Raised</div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--label-secondary);"><div style="width:10px;height:10px;background:var(--green-soft);border:0.5px solid var(--green);border-radius:2px;"></div>Resolved</div>
+        </div>
+      </div>
+
+      <!-- Category breakdown -->
+      <div style="background:var(--bg-card);border:0.5px solid var(--separator);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:18px 20px;">
+        <div style="font-size:12px;font-weight:600;color:var(--label-primary);margin-bottom:14px;">Jobs by Category (30d)</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${sortedCats.map(([cat,cnt])=>`
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                <span style="font-size:11px;color:var(--label-secondary);">${cat}</span>
+                <span style="font-size:11px;font-weight:600;color:var(--label-primary);">${cnt}</span>
+              </div>
+              <div style="height:5px;background:var(--bg-inset);border-radius:3px;overflow:hidden;">
+                <div style="width:${Math.round(cnt/maxCat*100)}%;height:100%;background:var(--accent);border-radius:3px;"></div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- Crew performance -->
+      <div style="background:var(--bg-card);border:0.5px solid var(--separator);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:18px 20px;">
+        <div style="font-size:12px;font-weight:600;color:var(--label-primary);margin-bottom:14px;">Crew Performance (30d)</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${sortedCrew.map(([crew,cnt])=>{
+            const avg = crewCnt[crew] ? (crewAvg[crew]/crewCnt[crew]).toFixed(1) : '-';
+            return `<div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:52px;height:52px;border-radius:50%;background:var(--accent-soft);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent);flex-shrink:0;">${crew.replace('Crew ','C')}</div>
+              <div style="flex:1;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+                  <span style="font-size:12px;font-weight:600;color:var(--label-primary);">${crew}</span>
+                  <span style="font-size:11px;color:var(--green);font-weight:600;">${cnt} resolved</span>
+                </div>
+                <div style="height:4px;background:var(--bg-inset);border-radius:2px;margin-bottom:3px;">
+                  <div style="width:${Math.round(cnt/maxCrew*100)}%;height:100%;background:var(--green);border-radius:2px;"></div>
+                </div>
+                <div style="font-size:10px;color:var(--label-tertiary);">Avg resolution: ${avg} days</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Resolution rate KPIs -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+      <div class="maint-stat"><span class="maint-stat-num" style="color:var(--green);">${resRate}%</span><div class="maint-stat-lbl">Resolution Rate</div></div>
+      <div class="maint-stat"><span class="maint-stat-num" style="color:var(--accent);">${jobs.filter(j=>j.responses?.length).length}</span><div class="maint-stat-lbl">Jobs Responded</div></div>
+      <div class="maint-stat"><span class="maint-stat-num" style="color:var(--amber);">${jobs.filter(j=>!j.responses?.length&&j.status==='Open').length}</span><div class="maint-stat-lbl">No Response Yet</div></div>
+      <div class="maint-stat"><span class="maint-stat-num" style="color:var(--label-primary);">${Math.round(jobs.length/30*7)}</span><div class="maint-stat-lbl">Avg Per Week</div></div>
+    </div>
+
+    <!-- Full 30-day log table -->
+    <div style="background:var(--bg-card);border:0.5px solid var(--separator);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden;">
+      <div style="padding:12px 16px;border-bottom:0.5px solid var(--separator);display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:13px;font-weight:600;color:var(--label-primary);">Full 30-Day Job Log</div>
+        <div style="font-size:11px;color:var(--label-tertiary);">Click any row to view responses &amp; edit</div>
+      </div>
+      <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="background:var(--bg-inset);">
+          ${['ID','Unit','Issue','Priority','Category','Crew','Reporter','Responses','Status','Date'].map(h=>`<th style="padding:8px 14px;text-align:left;font-size:9px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--label-tertiary);border-bottom:0.5px solid var(--separator);white-space:nowrap;">${h}</th>`).join('')}
+        </tr></thead>
+        <tbody>
+          ${[...jobs].sort((a,b)=>b.id-a.id).map(j=>`
+            <tr onclick="maintOpenDetail(${j.id})" style="cursor:pointer;border-bottom:0.5px solid var(--separator);">
+              <td style="padding:9px 14px;font-size:11px;color:var(--label-tertiary);">#${j.id}</td>
+              <td style="padding:9px 14px;font-size:12.5px;font-weight:600;color:var(--label-primary);white-space:nowrap;">${j.unit}</td>
+              <td style="padding:9px 14px;font-size:12px;color:var(--label-secondary);max-width:200px;">${j.issue.slice(0,40)}${j.issue.length>40?'…':''}</td>
+              <td style="padding:9px 14px;"><span class="job-pri ${priClass(j.pri)}">${j.pri}</span></td>
+              <td style="padding:9px 14px;font-size:11px;color:var(--label-secondary);">${j.cat}</td>
+              <td style="padding:9px 14px;font-size:11px;color:var(--label-secondary);white-space:nowrap;">${j.crew}</td>
+              <td style="padding:9px 14px;font-size:11px;color:var(--label-secondary);">${j.reporter}</td>
+              <td style="padding:9px 14px;text-align:center;font-size:11px;font-weight:600;color:${j.responses?.length?'var(--accent)':'var(--label-quaternary)'};">${j.responses?.length||'—'}</td>
+              <td style="padding:9px 14px;"><span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:${statusBg(j.status)};color:${statusColor(j.status)};white-space:nowrap;">${j.status}</span></td>
+              <td style="padding:9px 14px;font-size:11px;color:var(--label-tertiary);white-space:nowrap;">${j.date}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>`;
+  }
+
+  // ── DETAIL MODAL (with technician response thread) ──
+  window.maintOpenDetail = function(id) {
+    const j = jobs.find(x=>x.id===id); if(!j) return;
+    const m = document.getElementById('maint-detail-modal');
+
+    // Build response thread HTML
+    const threadHtml = j.responses?.length
+      ? j.responses.map((r,i)=>`
+          <div style="background:var(--bg-inset);border:0.5px solid var(--separator);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <div style="width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;">${r.by.slice(0,2).toUpperCase()}</div>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:var(--label-primary);">${r.by}</div>
+                <div style="font-size:10px;color:var(--label-tertiary);">${r.time?.replace('T',' ')}</div>
+              </div>
+              ${r.status==='Resolved'?`<span style="margin-left:auto;font-size:9px;font-weight:700;background:var(--green-soft);color:var(--green);padding:2px 7px;border-radius:10px;">✓ Resolved</span>`:''}
+            </div>
+            <div style="font-size:12.5px;color:var(--label-secondary);line-height:1.55;">${r.note}</div>
+          </div>`).join('')
+      : `<div style="font-size:12px;color:var(--label-quaternary);padding:12px 0;">No responses yet. Be the first to respond.</div>`;
+
+    m.innerHTML = `
+      <div class="modal-box" style="max-width:580px;max-height:85vh;overflow-y:auto;" onclick="event.stopPropagation()">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:12px;">
+          <div>
+            <div style="font-size:16px;font-weight:700;color:var(--label-primary);letter-spacing:-0.2px;">Job #${j.id} — ${j.unit}</div>
+            <div style="font-size:12px;color:var(--label-secondary);margin-top:3px;">${j.issue}</div>
+            <div style="font-size:10px;color:var(--label-tertiary);margin-top:3px;">Reported by ${j.reporter} · ${j.date}</div>
+          </div>
+          <button onclick="maintCloseDetailModal()" style="padding:4px 10px;border-radius:6px;border:0.5px solid var(--separator-strong);background:var(--bg-inset);color:var(--label-secondary);font-size:12px;cursor:pointer;flex-shrink:0;">✕ Close</button>
+        </div>
+
+        <!-- Status + assignment row -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
+          <div class="ops-field">
+            <label class="ops-label">Status</label>
+            <select class="ops-select" id="md2-status" onchange="maintUpdateJob(${j.id},'status',this.value)">
+              ${['Open','In Progress','Resolved'].map(s=>`<option${s===j.status?' selected':''}>${s}</option>`).join('')}
+            </select>
+          </div>
+          <div class="ops-field">
+            <label class="ops-label">Assign Crew</label>
+            <select class="ops-select" id="md2-crew" onchange="maintUpdateJob(${j.id},'crew',this.value)">
+              ${['Unassigned','Crew 1','Crew 2','Crew 3','Crew 4','Naqib'].map(c=>`<option${c===j.crew?' selected':''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div class="ops-field">
+            <label class="ops-label">Priority</label>
+            <select class="ops-select" id="md2-pri" onchange="maintUpdateJob(${j.id},'pri',this.value)">
+              ${['Urgent','High','Normal','Low'].map(p=>`<option${p===j.pri?' selected':''}>${p}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+
+        <!-- Response thread -->
+        <div style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--label-tertiary);margin-bottom:8px;">Technician Responses</div>
+        <div id="md2-thread">${threadHtml}</div>
+
+        <!-- Add response form -->
+        <div style="background:var(--bg-inset);border:0.5px solid var(--separator-strong);border-radius:var(--radius-sm);padding:14px;margin-top:10px;">
+          <div style="font-size:11px;font-weight:600;color:var(--accent);margin-bottom:8px;letter-spacing:0.03em;">ADD TECHNICIAN RESPONSE</div>
+          <div class="ops-row" style="margin-bottom:8px;">
+            <div class="ops-field">
+              <label class="ops-label">Your Name</label>
+              <select class="ops-select" id="res-by">
+                ${['Naqib','Crew 1','Crew 2','Crew 3','Crew 4'].map(c=>`<option${c===j.crew?' selected':''}>${c}</option>`).join('')}
+              </select>
+            </div>
+            <div class="ops-field">
+              <label class="ops-label">Mark as</label>
+              <select class="ops-select" id="res-mark">
+                <option value="">Update only</option>
+                <option value="Resolved">✓ Mark Resolved</option>
+              </select>
+            </div>
+          </div>
+          <div class="ops-field" style="margin-bottom:8px;">
+            <label class="ops-label">Work Done / Notes <span class="ops-req">*</span></label>
+            <textarea class="ops-textarea" id="res-note" style="min-height:70px;" placeholder="Describe what was done, parts used, time taken…"></textarea>
+          </div>
+          <button onclick="maintAddResponse(${j.id})" style="padding:9px 20px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;width:100%;">Submit Response</button>
+        </div>
+      </div>`;
+    m.classList.add('open');
+  };
+
+  window.maintUpdateJob = function(id, field, val) {
+    const j = jobs.find(x=>x.id===id); if(!j) return;
+    j[field] = val;
+    if(field==='status' && val==='Resolved') j.resolvedDate = today();
+    render();
+  };
+
+  window.maintAddResponse = function(id) {
+    const note = document.getElementById('res-note')?.value.trim();
+    if(!note) { alert('Please enter what was done.'); return; }
+    const by   = document.getElementById('res-by')?.value || 'Technician';
+    const mark = document.getElementById('res-mark')?.value;
+    const j    = jobs.find(x=>x.id===id); if(!j) return;
+    if(!j.responses) j.responses = [];
+    const entry = { by, time: new Date().toISOString().replace('T',' ').slice(0,16), note };
+    if(mark==='Resolved') { entry.status='Resolved'; j.status='Resolved'; j.resolvedDate=today(); }
+    j.responses.push(entry);
+    maintCloseDetailModal();
+    render();
+  };
+
+  window.maintCloseDetailModal = function() { document.getElementById('maint-detail-modal').classList.remove('open'); };
+
+  // ── VIEW TOGGLE ───────────────────────────────
+  window.maintSetView = function(v) {
+    activeView = v;
+    document.getElementById('maint-view-board').style.display     = v==='board'     ? 'block' : 'none';
+    document.getElementById('maint-view-analytics').style.display = v==='analytics' ? 'block' : 'none';
+    document.querySelectorAll('.maint-view-btn').forEach(b => b.classList.toggle('active', b.dataset.view===v));
+    if(v==='analytics') renderAnalytics();
+  };
+
+  // ── FILTERS ───────────────────────────────────
+  window.maintFilter = function(type, val) {
+    if(type==='status') filterStatus=val;
+    if(type==='pri')    filterPri=val;
+    if(type==='cat')    filterCat=val;
+    if(type==='crew')   filterCrew=val;
+    if(type==='search') searchQ=val;
+    renderBoard();
+  };
+
+  // ── ADD JOB ───────────────────────────────────
+  window.maintAddJob = function() {
+    const unit  = document.getElementById('nj-unit')?.value.trim();
+    const issue = document.getElementById('nj-issue')?.value.trim();
+    if(!unit||!issue){ alert('Please fill in Unit and Issue.'); return; }
+    jobs.unshift({ id:nextId++, unit, cat:document.getElementById('nj-cat')?.value||'Other',
+      issue, pri:document.getElementById('nj-pri')?.value||'Normal',
+      crew:document.getElementById('nj-crew')?.value||'Unassigned',
+      status:'Open', date:today(), resolvedDate:null,
+      reporter:document.getElementById('nj-reporter')?.value.trim()||'Staff', responses:[] });
+    document.getElementById('add-modal')?.classList.remove('open');
+    ['nj-unit','nj-issue','nj-reporter'].forEach(id=>{ const e=document.getElementById(id); if(e)e.value=''; });
+    render();
+  };
+
+  // ── STAFF FORM ────────────────────────────────
+  window.maintSubmitStaffForm = function() {
+    const unit  = document.getElementById('sf-unit')?.value.trim();
+    const issue = document.getElementById('sf-issue')?.value.trim();
+    if(!unit||!issue){ alert('Please fill in Unit/Location and describe the issue.'); return; }
+    jobs.unshift({ id:nextId++, unit, cat:document.getElementById('sf-cat')?.value||'Other',
+      issue, pri:document.getElementById('sf-pri')?.value||'Normal',
+      crew:'Unassigned', status:'Open', date:today(), resolvedDate:null,
+      reporter:document.getElementById('sf-name')?.value.trim()||'Staff', responses:[] });
+    document.getElementById('sf-success').style.display='flex';
+    document.getElementById('sf-form-inner').style.display='none';
+    setTimeout(()=>{ maintShowDashboard(); render();
+      document.getElementById('sf-success').style.display='none';
+      document.getElementById('sf-form-inner').style.display='flex'; }, 2000);
+  };
+
+  window.maintShowStaffForm = function() {
+    document.getElementById('maint-dashboard-panel').style.display='none';
+    document.getElementById('staff-form-panel').style.display='block';
+  };
+  window.maintShowDashboard = function() {
+    document.getElementById('staff-form-panel').style.display='none';
+    document.getElementById('maint-dashboard-panel').style.display='block';
+  };
+  window.maintOpenAddModal  = function() { document.getElementById('add-modal')?.classList.add('open'); };
+  window.maintCloseAddModal = function() { document.getElementById('add-modal')?.classList.remove('open'); };
+  window.maintCloseModal    = function() { document.getElementById('maint-modal')?.classList.remove('open'); };
+
+  function render() { renderBoard(); if(activeView==='analytics') renderAnalytics(); }
+  render();
+})();
+</script>
+</body>
+</html>
+</script>
+</body>
+</html>
